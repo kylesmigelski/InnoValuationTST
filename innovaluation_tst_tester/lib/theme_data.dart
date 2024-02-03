@@ -38,7 +38,25 @@ class GradientContainer extends Container {
       child: child,
     );
   }
+}
 
+//This will be the class for those buttons on the main menu
+// Since we've got 6 of them at least, I think it will be somewhat easier to create
+// these here and then just use that instead of button/container
+class BigMenuButton extends Container {
+  BigMenuButton({super.key, required this.onPressed, required super.child}) : super();
 
+  Function onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Container(
+      width: 300,
+      height: 200,
+      color: Colors.white,
+
+    );
+  }
 
 }
