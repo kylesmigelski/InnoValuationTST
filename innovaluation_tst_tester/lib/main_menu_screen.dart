@@ -7,42 +7,46 @@ class MainMenuView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Innovaluation TST"),
+        backgroundColor: Colors.green,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.only(top: 100, left: 24, right: 24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Center(
-              child: Text(
-                "What would you like to do?",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold
+      body: GradientContainer(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(top: 100, left: 24, right: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Center(
+                child: Text(
+                  "What would you like to do?",
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      //color: Colors.white
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 55,),
-            ElevatedButton(
-                onPressed: () {
-                  print("Button 1 pressed");
-                },
-                style: bigButtonStyle1(context),
-                //this text will obviously change but I'm leaving this in for
-                // testing purposes right now
-                child: const Text("Log TST appointment")
-            ),
-            SizedBox(height: 25,),
-            ElevatedButton(
-                onPressed: () {
-                  print("Button 2 pressed");
-                },
-                style: bigButtonStyle1(context),
-                child: const Text("Take photo of TST site")
-            )
-          ],
+              const SizedBox(height: 55,),
+              ElevatedButton(
+                  onPressed: () {
+                    print("Button 1 pressed");
+                  },
+                  //style: bigButtonStyle1(context),
+                  //this text will obviously change but I'm leaving this in for
+                  // testing purposes right now
+                  child: const Text("Log TST appointment")
+              ),
+              const SizedBox(height: 25,),
+              ElevatedButton(
+                  onPressed: () {
+                    print("Button 2 pressed");
+                  },
+                  //style: bigButtonStyle1(context),
+                  child: const Text("Take photo of TST site")
+              )
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 

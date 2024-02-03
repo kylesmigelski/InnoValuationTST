@@ -25,23 +25,28 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Innovaluation TST App',
-      theme: ThemeData.light().copyWith(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.light,
-          surface: const Color(0xff8f8f8f),
+      theme: ThemeData(
+        primaryColor: Colors.white60,
+        brightness: Brightness.light,
+        textTheme: Theme.of(context).textTheme.apply(
+          bodyColor: Colors.white
         ),
-        scaffoldBackgroundColor: const Color(0xffbabab8),
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
-              brightness: Brightness.dark,
-              surface: const Color.fromARGB(255, 42, 51, 59)
-          ),
-          scaffoldBackgroundColor: const Color.fromARGB(255, 50, 58, 60)
+        buttonTheme: const ButtonThemeData(
+          buttonColor: Colors.green,
+        ),
+          //this will make it so that the colors are consistent across each of our
+          //Figure we will be sticking with black text on a white background for
+          // most of the buttons we end up using so setting it here will keep us
+          // from having to manually write it every time
+          elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            textStyle: const TextStyle(
+              fontSize: 12
+            )
+          )
+        )
       ),
       home: MainMenuView(),
     );
@@ -54,6 +59,7 @@ class _TestWidget extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Innovaluation TST"),
+        backgroundColor: Colors.green,
       ),
       body: const Center(
         child: Text("This is a test widget"),
