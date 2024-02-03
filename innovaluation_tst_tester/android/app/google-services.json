@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "847719342986",
+    "project_id": "innovaluation-tst",
+    "storage_bucket": "innovaluation-tst.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:847719342986:android:811b12af797862f7319e73",
+        "android_client_info": {
+          "package_name": "com.example.innovaluation_tst_tester"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4WjQhse6n56kAvCpxAx4byNh6HxRw5iE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
