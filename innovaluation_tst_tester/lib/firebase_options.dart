@@ -67,6 +67,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '847719342986',
     projectId: 'innovaluation-tst',
     storageBucket: 'innovaluation-tst.appspot.com',
+    iosClientId: '847719342986-vcgr4mclivrdienuohgrnsjjt8fpnckp.apps.googleusercontent.com',
     iosBundleId: 'com.example.innovaluationTstTester',
   );
 
@@ -76,6 +77,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '847719342986',
     projectId: 'innovaluation-tst',
     storageBucket: 'innovaluation-tst.appspot.com',
+    iosClientId: '847719342986-jdjqj5fq1o49ohafdolqfhaq50i4hg4k.apps.googleusercontent.com',
     iosBundleId: 'com.example.innovaluationTstTester.RunnerTests',
   );
 }
