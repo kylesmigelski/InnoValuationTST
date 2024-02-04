@@ -44,17 +44,66 @@ class GradientContainer extends Container {
 // Since we've got 6 of them at least, I think it will be somewhat easier to create
 // these here and then just use that instead of button/container
 class BigMenuButton extends Container {
-  BigMenuButton({super.key, required this.onPressed, required super.child}) : super();
+  BigMenuButton({super.key, required this.onPressed, required this.label}) : super();
 
-  Function onPressed;
+  //final Widget? child;
+  //Will also need a variable to add an image here but I'm forgetting how to do that right now
+  void Function()? onPressed;
+  final Text label;
+
+
 
   @override
   Widget build(BuildContext context) {
+
+    //So this math works. Will need to come back and do the math for height once we've got
+    //more of the main menu going
+    final minButtonWidth = 0.5 * (MediaQuery.of(context).size.width - 60);
+
     // TODO: implement build
-    return Container(
-      width: 300,
-      height: 200,
-      color: Colors.white,
+    return ElevatedButton(
+      //This button style setup is extremely obnoxious. But now I guess I get why
+      //figma made these things containers.
+      style: ElevatedButton.styleFrom(
+        shadowColor: Colors.grey,
+        minimumSize: Size(minButtonWidth, 100),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10)
+        ),
+        padding: EdgeInsets.all(9),
+        alignment: Alignment.topLeft,
+        textStyle: TextStyle(
+          fontSize: minButtonWidth * 0.08,
+          color: Color(0xFF1A1A1A),
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.3
+        )
+      ),
+      onPressed: onPressed,
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: label,
+      )
+
+    );
+  }
+}
+
+class LoginMenuButton extends Container {
+  LoginMenuButton({super.key, required this.onPressed, required super.child}) : super();
+
+  void Function()? onPressed;
+  //Text label;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: child,
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(MediaQuery.of(context).size.width * 0.5, 45),
+        maximumSize: Size(MediaQuery.of(context).size.width * 0.75, 45)
+      ),
 
     );
   }
