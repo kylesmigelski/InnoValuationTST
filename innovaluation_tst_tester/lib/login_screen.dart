@@ -85,50 +85,33 @@ class _LoginScreenState extends State<LoginScreen> {
               //This will be the button that does the Log In/Sign up stuff
               //Actually, let's make this one the sign in with google button
               // and then the one below it can be sign in/sign up
-              LoginMenuButton(
-                  onPressed: _go2MainMenu,
-                  child: const Text(
-                    "Sign in with Google",
-                    style: TextStyle(
-                      fontSize: 16
+              Container(
+                width: MediaQuery.of(context).size.width * 0.78,
+                child: const TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.white,
+                        width: 5
+                      )
                     ),
-                  )
+                    hintText: 'Input TST Number',
+                    hintStyle: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w300)
+                  ),
+                ),
               ),
-              const SizedBox(height: 25,),
-              //This next one will be sign in/sign up
+              SizedBox(height: 25,),
               LoginMenuButton(
-                onPressed: _go2MainMenu,
+                onPressed: _go2MainMenu, //This will have to be changed
                 child: Text(
-                  _signInPressed ? "Sign In" : "Sign Up",
-                  style: const TextStyle(
+                  "Check for TST number",
+                  style: TextStyle(
                     fontSize: 16
                   ),
                 )
-              ),
-              const SizedBox(height: 20,),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: !_signInPressed ? "Already have an account? " : "Don't have an account? ",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400
-                      )
-                    ),
-                    TextSpan(
-                      text: !_signInPressed ? 'Sign In' : 'Sign Up',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700
-                      ),
-                      recognizer: TapGestureRecognizer()..onTap = () => setState(() {
-                        _signInPressed = !_signInPressed;
-                      })
-                    )
-                  ]
-                )
               )
+
+
             ],
           ),
         ),
