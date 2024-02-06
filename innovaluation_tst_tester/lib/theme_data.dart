@@ -30,9 +30,9 @@ class GradientContainer extends Container {
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF4195E3), Color(0xFF1B1A5A)],
-          begin: Alignment(0.26, -0.96),
-          end: Alignment(-0.26, 0.96)
+          colors: [Color(0xFF4BABC4), Color(0xFF5D4493), Color(0xFF2B1953)],
+          begin: Alignment(0.17, -0.99),
+          end: Alignment(-0.17, 0.99)
         )
       ),
       child: child,
