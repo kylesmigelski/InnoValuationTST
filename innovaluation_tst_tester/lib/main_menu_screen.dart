@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 
 class MainMenuView extends StatelessWidget {
@@ -12,25 +13,29 @@ class MainMenuView extends StatelessWidget {
       body: GradientContainer(
         child: SingleChildScrollView(
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(top: 66),
+          padding: const EdgeInsets.only(top: 0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
 
               //This will be the container that handles the label, logo, maybe a
               //push notifs thing.
+              SizedBox(height: 35,),
               Container(
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.15,
+                height: MediaQuery.of(context).size.height * 0.2,
                 child: Column(
                   children: [
                     //This row here will be where we put the Logo and notifs thing if we include those
                     Row(
                       children: [
-
+                        SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: logoSVG,
+                        )
                       ],
                     ),
-                    const SizedBox(height: 24,),
                     //This one will be for the label because not putting it in a row seems to autocenter it
                     Row(
                       children: [
@@ -49,6 +54,7 @@ class MainMenuView extends StatelessWidget {
                   ],
                 ),
               ),
+              //SizedBox(height: 55,),
 
               //This one will have that white background thing that all of the buttons
               // sit on in the prototype.
@@ -74,14 +80,17 @@ class MainMenuView extends StatelessWidget {
                           onPressed: () {
                             print("Sign up button pressed");
                           },
-                          label: Text("Sign Up for Visit")
+                          label: const Text("Sign Up for Visit"),
+                          svg: "assets/images/pencil1.svg",
+
                         ),
                         const SizedBox(width: 24,),
                         BigMenuButton(
                           onPressed: () {
                             print("Records button pressed");
                           },
-                          label: Text("Records")
+                          label: Text("Records"),
+                          svg: "assets/images/recordBlock.svg",
                         )
                       ],
                     ),
@@ -92,14 +101,16 @@ class MainMenuView extends StatelessWidget {
                           onPressed: () {
 
                           },
-                          label: const Text("Analysis")
+                          label: const Text("Analysis"),
+                          svg: "assets/images/clipboard2.svg",
                         ),
                         const SizedBox(width: 24,),
                         BigMenuButton(
                           onPressed: () {
 
                           },
-                          label:  const Text("Visits")
+                          label:  const Text("Visits"),
+                          svg: "assets/images/calandar.svg",
                         )
                       ],
                     ),
@@ -110,7 +121,8 @@ class MainMenuView extends StatelessWidget {
                           onPressed: () {
 
                           },
-                          label: Text("Help")
+                          label: Text("Help"),
+                          svg: "assets/images/clipboard1.svg",
                         )
                       ],
                     )

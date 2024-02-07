@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,12 +17,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  var _descriptionString = "";
+  var _descriptionString = '';
   var _signInPressed = false;
+
+  final _logoSVG = logoSVG;
 
 
   Future<String> _getAppDescriptionFromFile(BuildContext context) async {
-    return await DefaultAssetBundle.of(context).loadString('assets/text/tb_description.txt');
+    final str = await DefaultAssetBundle.of(context).loadString('assets/text/tb_description.txt');
+    return str;
   }
 
   //This is where we'll handle our functionality for going to the main menu screen
@@ -37,7 +42,13 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
 
     super.initState();
-    _getAppDescriptionFromFile(context).then((value) => _descriptionString = value);
+    _getAppDescriptionFromFile(context).then((value) {
+      setState(() {
+        _descriptionString = value;
+      });
+    }
+
+    );
 
   }
 
@@ -49,9 +60,14 @@ class _LoginScreenState extends State<LoginScreen> {
       body: GradientContainer(
         child: SingleChildScrollView(
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(top: 300, left: 25, right: 25),
+          padding: const EdgeInsets.only(top: 150, left: 25, right: 25),
           child: Column(
             children: [
+              Container(
+                width: 200,
+                height: 200,
+                child: _logoSVG,
+              ),
               //SizedBox(height: 100,),
               //We'll come back and put the image in here in a minute. But let's just throw the text in there first
               const Text(
@@ -87,23 +103,24 @@ class _LoginScreenState extends State<LoginScreen> {
               // and then the one below it can be sign in/sign up
               Container(
                 width: MediaQuery.of(context).size.width * 0.78,
-                child: const TextField(
+                child: TextField(
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                         color: Colors.white,
-                        width: 5
-                      )
+                        width: 5,
+                      ),
+                      borderRadius: BorderRadius.circular(25)
                     ),
                     hintText: 'Input TST Number',
                     hintStyle: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w300)
                   ),
                 ),
               ),
-              SizedBox(height: 25,),
+              const SizedBox(height: 25,),
               LoginMenuButton(
                 onPressed: _go2MainMenu, //This will have to be changed
-                child: Text(
+                child: const Text(
                   "Check for TST number",
                   style: TextStyle(
                     fontSize: 16
