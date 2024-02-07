@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+
+
 import 'main_menu_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'login_screen.dart';
+
 
 // Database object is ready to be created and used
 
@@ -11,11 +15,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  var _hasAuthToken = false;
 
   // So this widget serves as basically the root of our application.
   // and that ends up being super convinient as we can do things that should
@@ -38,7 +44,8 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white60,
         brightness: Brightness.light,
         textTheme: Theme.of(context).textTheme.apply(
-          bodyColor: Colors.white
+          bodyColor: Colors.white,
+          fontFamily: 'SF Pro Display'
         ),
         buttonTheme: const ButtonThemeData(
           buttonColor: Colors.green,
@@ -57,7 +64,7 @@ class MyApp extends StatelessWidget {
           )
         )
       ),
-      home: MainMenuView(),
+      home: _hasAuthToken ? MainMenuView() : LoginScreen(),
     );
   }
 }
