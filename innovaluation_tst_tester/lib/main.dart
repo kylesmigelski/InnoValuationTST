@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         textTheme: Theme.of(context).textTheme.apply(
           bodyColor: Colors.white,
-          fontFamily: 'SF Pro Display'
+          fontFamily: 'SF-Pro'
         ),
         buttonTheme: const ButtonThemeData(
           buttonColor: Colors.green,

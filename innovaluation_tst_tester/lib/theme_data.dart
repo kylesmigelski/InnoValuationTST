@@ -8,6 +8,11 @@ final Widget logoSVG = SvgPicture.asset(
   semanticsLabel: 'logo',
 );
 
+final Widget innoLogoSVG = SvgPicture.asset(
+  'assets/images/logo.svg',
+  semanticsLabel: 'inno_logo',
+);
+
 final Widget cameraSVG = SvgPicture.asset(
   'assets/images/camera.svg',
   semanticsLabel: 'camera',
@@ -18,8 +23,8 @@ final Widget cameraSVG = SvgPicture.asset(
 // you would have to write "size: x" where x is an int
 ButtonStyle bigButtonStyle1(BuildContext context, {int size = 22}) {
   return ElevatedButton.styleFrom(
-      side: BorderSide(width: 1),
-      minimumSize: const Size(250, 40),
+    side: BorderSide(width: 1),
+    minimumSize: const Size(250, 40),
     //backgroundColor
   );
 } //we might axe this function here since it isn't really acheiving its job now
@@ -33,7 +38,6 @@ ButtonStyle bigButtonStyle1(BuildContext context, {int size = 22}) {
 // that we do use it. So yeah, just call this as the first child in the appbar
 // and then call our actual components as the child of GradientContainer
 class GradientContainer extends Container {
-
   GradientContainer({super.key, super.child});
 
   @override
@@ -43,10 +47,10 @@ class GradientContainer extends Container {
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
+          begin: Alignment(0.30, -0.95),
+          end: Alignment(-0.3, 0.95),
           colors: [Color(0xFF4BABC4), Color(0xFF5D4493), Color(0xFF2B1953)],
-          begin: Alignment(0.17, -0.99),
-          end: Alignment(-0.17, 0.99)
-        )
+          ),
       ),
       child: child,
     );
@@ -57,8 +61,13 @@ class GradientContainer extends Container {
 // Since we've got 6 of them at least, I think it will be somewhat easier to create
 // these here and then just use that instead of button/container
 class BigMenuButton extends Container {
-  BigMenuButton({super.key, required this.onPressed, required this.label,
-    super.child, required this.svg}) : super();
+  BigMenuButton(
+      {super.key,
+      required this.onPressed,
+      required this.label,
+      super.child,
+      required this.svg})
+      : super();
 
   //final Widget? child;
   //Will also need a variable to add an image here but I'm forgetting how to do that right now
@@ -67,73 +76,71 @@ class BigMenuButton extends Container {
   String svg;
 
   Widget _buildSVGFromString(double minHeigt, double minWidth) {
-
     return SvgPicture.asset(
       svg,
       semanticsLabel: svg.substring("assets/images/".length),
-      height: minHeigt * 0.25,
-      width: minWidth * 0.25,
+      height: minHeigt * 0.3,
+      width: minWidth * 0.3,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-
     //So this math works. Will need to come back and do the math for height once we've got
     //more of the main menu going
     final minButtonWidth = 0.5 * (MediaQuery.of(context).size.width - 60);
-    final buttonHeight = (MediaQuery.of(context).size.height * 0.75 * 0.25) -72;
+    final buttonHeight =
+        (MediaQuery.of(context).size.height * 0.75 * 0.25) - 72;
 
     final svgImage = _buildSVGFromString(buttonHeight, minButtonWidth);
 
     // TODO: implement build
     return ElevatedButton(
-      //This button style setup is extremely obnoxious. But now I guess I get why
-      //figma made these things containers.
-      style: ElevatedButton.styleFrom(
-        shadowColor: Colors.grey,
-        minimumSize: Size(minButtonWidth, buttonHeight),
-        maximumSize: Size(minButtonWidth, buttonHeight),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10)
-        ),
-        padding: const EdgeInsets.all(9),
-        alignment: Alignment.topLeft,
-        textStyle: TextStyle(
-          fontSize: minButtonWidth * 0.08,
-          color: const Color(0xFF1A1A1A),
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.3
-        )
-      ),
-      onPressed: onPressed,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              label,
-              //SizedBox(width: minButtonWidth * 0.75,)
-            ],
-          ),
-          SizedBox(height: buttonHeight * 0.35,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              //SizedBox(width: minButtonWidth * 0.75,),
-              svgImage,
-              SizedBox(width:,)
-            ],
-          )
-        ],
-      )
-
-    );
+        //This button style setup is extremely obnoxious. But now I guess I get why
+        //figma made these things containers.
+        style: ElevatedButton.styleFrom(
+            shadowColor: Colors.grey,
+            minimumSize: Size(minButtonWidth, buttonHeight),
+            maximumSize: Size(minButtonWidth, buttonHeight),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.all(9),
+            alignment: Alignment.topLeft,
+            textStyle: TextStyle(
+                fontSize: minButtonWidth * 0.1,
+                color: const Color(0xFF1A1A1A),
+                fontWeight: FontWeight.w600,
+                fontFamily: 'SF-Pro',
+                letterSpacing: -0.3)),
+        onPressed: onPressed,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                label,
+                //SizedBox(width: minButtonWidth * 0.75,)
+              ],
+            ),
+            SizedBox(
+              height: buttonHeight * 0.35,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                //SizedBox(width: minButtonWidth * 0.75,),
+                svgImage,
+                const SizedBox(width: 10),
+              ],
+            )
+          ],
+        ));
   }
 }
 
 class LoginMenuButton extends Container {
-  LoginMenuButton({super.key, required this.onPressed, required super.child}) : super();
+  LoginMenuButton({super.key, required this.onPressed, required super.child})
+      : super();
 
   void Function()? onPressed;
   //Text label;
@@ -144,10 +151,8 @@ class LoginMenuButton extends Container {
       onPressed: onPressed,
       child: child,
       style: ElevatedButton.styleFrom(
-        minimumSize: Size(MediaQuery.of(context).size.width * 0.7, 55),
-        maximumSize: Size(MediaQuery.of(context).size.width * 0.75, 55)
-      ),
+          minimumSize: Size(MediaQuery.of(context).size.width * 0.7, 55),
+          maximumSize: Size(MediaQuery.of(context).size.width * 0.75, 55)),
     );
   }
-
 }
