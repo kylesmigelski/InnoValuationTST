@@ -8,6 +8,11 @@ final Widget logoSVG = SvgPicture.asset(
   semanticsLabel: 'logo',
 );
 
+final Widget innoLogoSVG = SvgPicture.asset(
+  'assets/images/logo.svg',
+  semanticsLabel: 'inno_logo',
+);
+
 final Widget cameraSVG = SvgPicture.asset(
   'assets/images/camera.svg',
   semanticsLabel: 'camera',

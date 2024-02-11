@@ -12,6 +12,17 @@ class MainMenuView extends StatelessWidget {
       //   title: const Text("Innovaluation TST"),
       //   backgroundColor: Colors.green,
       // ),
+      bottomNavigationBar: BottomAppBar(
+        height: MediaQuery.of(context).size.height * 0.05,
+        color: Color(0xFFFFFFFF),
+        shadowColor: Colors.grey,
+        child: Row(
+          children: [
+            SizedBox(width: 15,),
+            BackButton()
+          ],
+        ),
+      ),
       body: GradientContainer(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -21,49 +32,45 @@ class MainMenuView extends StatelessWidget {
             SizedBox(height: 20),
             Container(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.2,
+              height: MediaQuery.of(context).size.height * 0.25,
               child: Column(
                 children: [
                   //This row here will be where we put the Logo and notifs thing if we include those
-                  SafeArea(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: GestureDetector(
-                            // placeholder for testing purposes
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginScreen()),
-                              );
-                            },
-                            child: logoSVG,
-                          ),
+                  SizedBox(height: 50,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: GestureDetector(
+                          // placeholder for testing purposes
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: logoSVG,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0,
-                              right: 16.0), // Add right padding here
-                          child: IconButton(
-                            onPressed: () {
-                              // Handle logo button pressed
-                            },
-                            icon: SvgPicture.asset(
-                              'assets/images/notif.svg',
-                              height: 30,
-                            ),
-                            padding: const EdgeInsets.all(0),
-                            constraints: const BoxConstraints(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0,
+                            right: 16.0), // Add right padding here
+                        child: IconButton(
+                          onPressed: () {
+                            // Handle logo button pressed
+                          },
+                          icon: SvgPicture.asset(
+                            'assets/images/notif.svg',
+                            height: 30,
                           ),
-                        )
-                      ],
-                    ),
+                          padding: const EdgeInsets.all(0),
+                          //constraints: const BoxConstraints(),
+                        ),
+                      )
+                    ],
                   ),
                   //This one will be for the label because not putting it in a row seems to autocenter it
+                  //SizedBox(height: 25,),
                   Row(
                     children: [
                       SizedBox(width: MediaQuery.of(context).size.width * 0.06),
@@ -79,7 +86,7 @@ class MainMenuView extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 30),
+            //SizedBox(height: 30),
 
             //This one will have that white background thing that all of the buttons
             // sit on in the prototype.
@@ -96,10 +103,10 @@ class MainMenuView extends StatelessWidget {
                       children: [
                         Container(
                           width: MediaQuery.of(context).size.width,
-                          margin: const EdgeInsets.only(top: 70),
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          margin: const EdgeInsets.only(top: 1),
+                          height: MediaQuery.of(context).size.height * 0.75,
                           decoration: const ShapeDecoration(
-                            color: Color(0xFFF8F8F8),
+                            color: Color(0xFFE8E8E8),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(20),
@@ -107,7 +114,7 @@ class MainMenuView extends StatelessWidget {
                           ),
                           //not sure if we're going to leave that bottom padding in...
                           padding: EdgeInsets.only(
-                              left: 18, right: 18, top: 90, bottom: 18),
+                              left: 18, right: 18, top: 45, bottom: 18),
                           child: Column(
                             children: [
                               Row(
@@ -166,16 +173,16 @@ class MainMenuView extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Positioned(
-                          top:
-                              0, // Adjust this value to position the button correctly (half inside, half outside)
-                          child: CustomPhotoButton(
-                            onPressed: () {
-                              print("Photo button pressed");
-                            },
-                            remainingTime: const Duration(minutes: 15),
-                          ),
-                        ),
+                        // Positioned(
+                        //   top:
+                        //       0, // Adjust this value to position the button correctly (half inside, half outside)
+                        //   child: CustomPhotoButton(
+                        //     onPressed: () {
+                        //       print("Photo button pressed");
+                        //     },
+                        //     remainingTime: const Duration(minutes: 15),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ],

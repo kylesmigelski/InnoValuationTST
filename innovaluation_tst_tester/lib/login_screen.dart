@@ -1,9 +1,11 @@
 import 'dart:math';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:innovaluation_tst_tester/main_menu_screen.dart';
 import 'dart:async';
+
 
 import 'package:innovaluation_tst_tester/theme_data.dart';
 
@@ -80,13 +82,14 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(
                 height: 5,
               ),
-              const Text(
+               AutoSizeText(
                 "InnoValuation TST",
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.w900,
                   height: 0,
                 ),
+                maxLines: 1,
               ),
               const SizedBox(
                 height: 20,
