@@ -122,7 +122,7 @@ class BigMenuButton extends Container {
             children: [
               //SizedBox(width: minButtonWidth * 0.75,),
               svgImage,
-              SizedBox(width:,)
+              SizedBox(width: 5)
             ],
           )
         ],
