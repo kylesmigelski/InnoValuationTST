@@ -43,6 +43,7 @@ dependencies:
   # Dependencies for graphical stuff
   flutter_svg: ^2.0.9
   auto_size_text: ^3.0.0
+  firebase_auth: ^4.17.4
 
 
 dev_dependencies:
