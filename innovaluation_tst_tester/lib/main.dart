@@ -1,10 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-
-import 'main_menu_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:innovaluation_tst_tester/splash.dart';
+import 'main_menu_screen.dart';
 import 'login_screen.dart';
 
 
@@ -45,7 +46,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         textTheme: Theme.of(context).textTheme.apply(
           bodyColor: Colors.white,
-          fontFamily: 'SF Pro Display'
+          fontFamily: 'SF-Pro'
         ),
         buttonTheme: const ButtonThemeData(
           buttonColor: Colors.green,
@@ -64,7 +65,19 @@ class MyApp extends StatelessWidget {
           )
         )
       ),
-      home: _hasAuthToken ? MainMenuView() : LoginScreen(),
+      //home: _hasAuthToken ? MainMenuView() : LoginScreen(),
+      home: Scaffold(
+        body: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, dataSnapshot) {
+            if (dataSnapshot.connectionState == ConnectionState.waiting) {
+              return const SplashScreen();
+            }
+
+            return (dataSnapshot.hasData) ? MainMenuView() : LoginScreen();
+          },
+        ),
+      ),
     );
   }
 }
