@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Innovaluation TST App',
       theme: ThemeData(
-        primaryColor: Colors.white60,
+        primaryColor: Colors.white,
         brightness: Brightness.light,
         textTheme: Theme.of(context).textTheme.apply(
           bodyColor: Colors.white,

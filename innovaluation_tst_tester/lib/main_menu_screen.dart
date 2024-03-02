@@ -1,10 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:innovaluation_tst_tester/questionnaire_screen.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'login_screen.dart';
 import 'photo_button.dart';
 
 class MainMenuView extends StatelessWidget {
+
+  void _logoutPressed() {
+    FirebaseAuth.instance.signOut();
+  }
+
   @override
   Widget build(context) {
     return Scaffold(
@@ -19,7 +27,9 @@ class MainMenuView extends StatelessWidget {
         child: Row(
           children: [
             SizedBox(width: 15,),
-            BackButton()
+            BackButton(
+              onPressed: _logoutPressed,
+            )
           ],
         ),
       ),
@@ -47,7 +57,8 @@ class MainMenuView extends StatelessWidget {
                         child: GestureDetector(
                           // placeholder for testing purposes
                           onTap: () {
-                            Navigator.of(context).pop();
+                            //Navigator.of(context).pop();
+                            _logoutPressed();
                           },
                           child: logoSVG,
                         ),
@@ -122,8 +133,11 @@ class MainMenuView extends StatelessWidget {
                                   BigMenuButton(
                                     onPressed: () {
                                       print("Sign up button pressed");
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (context) => QuestionnaireScreen())
+                                      );
                                     },
-                                    label: const Text("Sign Up for Visit"),
+                                    label: const Text("Take Questionnaire"),
                                     svg: "assets/images/pencil1.svg",
                                   ),
                                   const SizedBox(

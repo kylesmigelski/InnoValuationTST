@@ -39,7 +39,7 @@ ButtonStyle bigButtonStyle1(BuildContext context, {int size = 22}) {
 // and then call our actual components as the child of GradientContainer
 class GradientContainer extends Container {
 
-  GradientContainer({super.key, super.child});
+  GradientContainer({super.key, super.child}) : super();
 
   @override
   Widget build(BuildContext context) {
