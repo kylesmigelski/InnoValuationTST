@@ -211,6 +211,11 @@ class DisplayPictureScreen extends StatelessWidget {
                         )
                     );
                     await _uploadImageToFirestore();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Uploaded'),
+                        )
+                    );
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => MainMenuView()),
