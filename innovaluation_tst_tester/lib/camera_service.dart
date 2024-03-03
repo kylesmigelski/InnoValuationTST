@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:innovaluation_tst_tester/main_menu_screen.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> main() async {
   // Ensure that plugin services are initialized so that `availableCameras()`
@@ -161,6 +164,29 @@ class DisplayPictureScreen extends StatelessWidget {
 
   const DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
 
+  Future<void> _uploadImageToFirestore() async {
+    // Get the file from the imagePath
+    File file = File(imagePath);
+
+    // Create a reference to the Firebase storage location
+    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('images')
+        .child('image.jpg');
+
+    // Upload the file to Firebase storage
+    await ref.putFile(file);
+
+    // Get the download URL for the file
+    String downloadURL = await ref.getDownloadURL();
+
+    // Add the download URL to Firestore
+    await FirebaseFirestore.instance.collection('images').add({
+      'url': downloadURL,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,9 +202,30 @@ class DisplayPictureScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () {
-                  // User confirms the picture, navigate back to the previous screen
-                  Navigator.pop(context, true);
+                onPressed: () async {
+                  // User confirms the picture, send to database, navigate back to main menu
+                  try {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Uploading image'),
+                        )
+                    );
+                    await _uploadImageToFirestore();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainMenuView()),
+                    );
+                  } catch (error) {
+                    // Handle error
+                    print('Error uploading image: $error');
+                    // Show an error message to the user
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                        content: Text('Failed to upload image. Please try again.'),
+                        )
+                    );
+                    Navigator.pop(context, false);
+                  }
                 },
                 child: const Text('Confirm'),
               ),
