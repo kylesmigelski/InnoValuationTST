@@ -3,6 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'login_screen.dart';
 import 'photo_button.dart';
+import 'package:innovaluation_tst_tester/camera_service.dart'; // Import the camera_service.dart file
+import 'package:camera/camera.dart'; // Import the camera package
+
 
 class MainMenuView extends StatelessWidget {
   @override
@@ -212,3 +215,28 @@ class CustomScrollPhysics extends ScrollPhysics {
     return super.applyPhysicsToUserOffset(position, offset);
   }
 }
+
+
+
+Future<void> _navigateToCamera(BuildContext context) async {
+  try {
+    // Get the list of available cameras.
+    final cameras = await availableCameras();
+
+    // Get a specific camera from the list of available cameras.
+    final firstCamera = cameras.first;
+
+    // Navigate to the InstructionsScreen widget, passing the first camera.
+    // InstructionsScreen will then handle navigating to TakePictureScreen.
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => InstructionsScreen(camera: firstCamera),
+      ),
+    );
+  } catch (e) {
+    // Handle any errors here
+    print(e); // Consider showing an alert or a toast to the user
+  }
+}
+}
+
