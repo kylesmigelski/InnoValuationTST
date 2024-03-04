@@ -1,7 +1,15 @@
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:innovaluation_tst_tester/splash.dart';
 import 'main_menu_screen.dart';
+import 'login_screen.dart';
+
+
+// Database object is ready to be created and used
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +20,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  var _hasAuthToken = false;
 
   // So this widget serves as basically the root of our application.
   // and that ends up being super convinient as we can do things that should
@@ -31,25 +41,43 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Innovaluation TST App',
-      theme: ThemeData.light().copyWith(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.light,
-          surface: const Color(0xff8f8f8f),
+      theme: ThemeData(
+        primaryColor: Colors.white60,
+        brightness: Brightness.light,
+        textTheme: Theme.of(context).textTheme.apply(
+          bodyColor: Colors.white,
+          fontFamily: 'SF-Pro'
         ),
-        scaffoldBackgroundColor: const Color(0xffbabab8),
+        buttonTheme: const ButtonThemeData(
+          buttonColor: Colors.green,
+        ),
+          //this will make it so that the colors are consistent across each of our
+          //Figure we will be sticking with black text on a white background for
+          // most of the buttons we end up using so setting it here will keep us
+          // from having to manually write it every time
+          elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            textStyle: const TextStyle(
+              fontSize: 12
+            )
+          )
+        )
       ),
-      darkTheme: ThemeData.dark().copyWith(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
-              brightness: Brightness.dark,
-              surface: const Color.fromARGB(255, 42, 51, 59)
-          ),
-          scaffoldBackgroundColor: const Color.fromARGB(255, 50, 58, 60)
+      //home: _hasAuthToken ? MainMenuView() : LoginScreen(),
+      home: Scaffold(
+        body: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, dataSnapshot) {
+            if (dataSnapshot.connectionState == ConnectionState.waiting) {
+              return const SplashScreen();
+            }
+
+            return (dataSnapshot.hasData) ? MainMenuView() : LoginScreen();
+          },
+        ),
       ),
-      home: MainMenuView(),
     );
   }
 }
@@ -60,11 +88,11 @@ class _TestWidget extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Innovaluation TST"),
+        backgroundColor: Colors.green,
       ),
       body: const Center(
         child: Text("This is a test widget"),
       ),
     );
   }
-
 }

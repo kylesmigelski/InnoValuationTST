@@ -36,10 +36,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-  # Firebase-related dependencies (who are we kidding? Probably no one is going to look at this)
-  firebase_core: ^2.25.3
-  cloud_firestore: ^4.15.3
-
   # Dependencies for graphical stuff
   flutter_svg: ^2.0.9
   auto_size_text: ^3.0.0
@@ -47,7 +43,9 @@ dependencies:
   camera: ^0.10.5+9
   firebase_storage: ^11.6.7
 
-
+  # Firebase-related dependencies (who are we kidding? Probably no one is going to look at this)
+  firebase_core: ^2.25.3
+  cloud_firestore: ^4.15.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -59,7 +57,6 @@ flutter_icons:
   ios: true
   remove_alpha_ios: true
   image_path: "assets/icon/icon.png"
-
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -79,10 +76,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-#  assets:
-#    - assets/images/
-#    - assets/text/
-#    - assets/fonts/
+  assets:
+    - assets/images/
+    - assets/text/
+    - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -95,16 +92,16 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-#  fonts:
-#    - family: SF-Pro
-#      fonts:
-#        - asset: "assets/fonts/San-Francisco-Pro-Fonts/SF-Pro.ttf"
-        # - family: SF-Pro-Display
-        #   fonts:
-        #     - asset: assets/fonts/SF-Pro-Display-Regular.otf
-        #     - asset: fonts/SF-Pro-Display-Bold.otf
-        #       weight: 700
-
+  fonts:
+    - family: SF-Pro
+      fonts:
+        - asset: "assets/fonts/San-Francisco-Pro-Fonts/SF-Pro.ttf"   
+    # - family: SF-Pro-Display
+    #   fonts:
+    #     - asset: assets/fonts/SF-Pro-Display-Regular.otf
+    #     - asset: fonts/SF-Pro-Display-Bold.otf
+    #       weight: 700
+        
 
     #   - family: Schyler
     #     fonts:
