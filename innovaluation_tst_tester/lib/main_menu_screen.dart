@@ -183,11 +183,21 @@ class MainMenuView extends StatelessWidget {
                                 children: [
                                   BigMenuButton(
                                     onPressed: () {},
-                                    
                                     label: Text("Help"),
                                     svg: "assets/images/clipboard1.svg",
-                                  )
-                                ],
+                                  ),
+                              
+                              SizedBox(
+                                width: 24,
+                              ),
+                                BigMenuButton(
+                                  onPressed: () {
+                                    _navigateToCamera(context);
+                                  },
+                                  label: Text("Take Picture"),
+                                  svg: "assets/images/camera.svg",
+                                )
+                            ],
                               ),
                             ],
                           ),
