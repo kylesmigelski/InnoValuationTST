@@ -111,7 +111,7 @@ class MainMenuView extends StatelessWidget {
                   print("Refreshed");
                 },
                 child: ListView(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: CustomScrollPhysics(),
                   children: [
                     Stack(
                       alignment: Alignment.topCenter,
