@@ -87,7 +87,7 @@ class BigMenuButton extends Container {
     //So this math works. Will need to come back and do the math for height once we've got
     //more of the main menu going
     final minButtonWidth = 0.5 * (MediaQuery.of(context).size.width - 60);
-    final buttonHeight = (MediaQuery.of(context).size.height * 0.75 * 0.25) -72;
+    final buttonHeight = (MediaQuery.of(context).size.height * 0.75 * 0.25) - 60;
 
     final svgImage = _buildSVGFromString(buttonHeight, minButtonWidth);
 
@@ -129,7 +129,7 @@ class BigMenuButton extends Container {
               svgImage,
               SizedBox(width: 5)
             ],
-          )
+          ),
         ],
       )
 

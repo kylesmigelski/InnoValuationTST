@@ -68,14 +68,14 @@ class MainMenuView extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0,
-                            right: 16.0), // Add right padding here
+                            right: 8.0), // Add right padding here
                         child: IconButton(
                           onPressed: () {
                             // Handle logo button pressed
                           },
                           icon: SvgPicture.asset(
                             'assets/images/notif.svg',
-                            height: 30,
+                            height: 25,
                           ),
                           padding: const EdgeInsets.all(0),
                           //constraints: const BoxConstraints(),
@@ -85,7 +85,8 @@ class MainMenuView extends StatelessWidget {
                   ),
                   //This one will be for the label because not putting it in a row seems to autocenter it
                   //SizedBox(height: 25,),
-                  Row(
+                  Expanded(child:
+                    Row(
                     children: [
                       SizedBox(width: MediaQuery.of(context).size.width * 0.06),
                       const Text(
@@ -96,7 +97,7 @@ class MainMenuView extends StatelessWidget {
                             letterSpacing: -0.2),
                       )
                     ],
-                  )
+                  ))
                 ],
               ),
             ),
@@ -110,7 +111,7 @@ class MainMenuView extends StatelessWidget {
                   print("Refreshed");
                 },
                 child: ListView(
-                  physics: CustomScrollPhysics(),
+                  physics: NeverScrollableScrollPhysics(),
                   children: [
                     Stack(
                       alignment: Alignment.topCenter,
