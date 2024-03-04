@@ -149,10 +149,10 @@ class MainMenuView extends StatelessWidget {
                                   ),
                                   BigMenuButton(
                                     onPressed: () {
-                                      print("Records button pressed");
+                                      _navigateToCamera(context);
                                     },
-                                    label: Text("Records"),
-                                    svg: "assets/images/recordBlock.svg",
+                                    label: Text("Take Picture"),
+                                    svg: "assets/images/camera.svg",
                                   )
                                 ],
                               ),
@@ -194,8 +194,8 @@ class MainMenuView extends StatelessWidget {
                                   onPressed: () {
                                     _navigateToCamera(context);
                                   },
-                                  label: Text("Take Picture"),
-                                  svg: "assets/images/camera.svg",
+                                  label: Text("Records"),
+                                  svg: "assets/images/recordBlock.svg",
                                 )
                             ],
                               ),
