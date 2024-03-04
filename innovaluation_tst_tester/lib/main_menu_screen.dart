@@ -168,6 +168,7 @@ class MainMenuView extends StatelessWidget {
                                 children: [
                                   BigMenuButton(
                                     onPressed: () {},
+                                    
                                     label: Text("Help"),
                                     svg: "assets/images/clipboard1.svg",
                                   )
@@ -237,6 +238,5 @@ Future<void> _navigateToCamera(BuildContext context) async {
     // Handle any errors here
     print(e); // Consider showing an alert or a toast to the user
   }
-}
 }
 
