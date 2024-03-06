@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:innovaluation_tst_tester/main_menu_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:innovaluation_tst_tester/theme_data.dart';
 
 Future<void> main() async {
   // Ensure that plugin services are initialized so that `availableCameras()`
@@ -38,28 +39,36 @@ class InstructionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Photo Instructions')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                'To take a photo, press the camera button. Make sure the subject is well-lit and in focus.',
-                textAlign: TextAlign.center,
+      body: GradientContainer(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
+              const Padding(
+                padding: EdgeInsets.all(25.0),
+                child: Text(
+                  'To take a photo, press the camera button. Make sure the subject is well-lit and in focus.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 22,
+                      //color: Color(0xFF5D4493)
+                  ),
+                ),
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => TakePictureScreen(camera: camera),
-                ));
-              },
-              child: Text('Open Camera'),
-            ),
-          ],
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => TakePictureScreen(camera: camera),
+                  ));
+                },
+                child: Text('Open Camera'),
+              ),
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 }
