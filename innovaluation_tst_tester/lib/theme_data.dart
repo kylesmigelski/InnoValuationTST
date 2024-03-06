@@ -23,8 +23,8 @@ final Widget cameraSVG = SvgPicture.asset(
 // you would have to write "size: x" where x is an int
 ButtonStyle bigButtonStyle1(BuildContext context, {int size = 22}) {
   return ElevatedButton.styleFrom(
-      side: BorderSide(width: 1),
-      minimumSize: const Size(250, 40),
+    side: BorderSide(width: 1),
+    minimumSize: const Size(250, 40),
     //backgroundColor
   );
 } //we might axe this function here since it isn't really acheiving its job now
@@ -38,7 +38,6 @@ ButtonStyle bigButtonStyle1(BuildContext context, {int size = 22}) {
 // that we do use it. So yeah, just call this as the first child in the appbar
 // and then call our actual components as the child of GradientContainer
 class GradientContainer extends Container {
-
   GradientContainer({super.key, super.child}) : super();
 
   @override
@@ -47,12 +46,15 @@ class GradientContainer extends Container {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF4BABC4), Color(0xFF5D4493), Color(0xFF2B1953)],
-          begin: Alignment(0.17, -0.99),
-          end: Alignment(-0.17, 0.99)
-        )
-      ),
+          gradient: LinearGradient(
+                  colors: [
+            Color(0xFF4BABC4),
+            Color(0xFF5D4493),
+            Color(0xFF2B1953)
+          ],
+                  begin: Alignment.topLeft, // More readable and angled
+                  end: Alignment.bottomRight // More readable and angled
+                  )),
       child: child,
     );
   }
@@ -62,8 +64,13 @@ class GradientContainer extends Container {
 // Since we've got 6 of them at least, I think it will be somewhat easier to create
 // these here and then just use that instead of button/container
 class BigMenuButton extends Container {
-  BigMenuButton({super.key, required this.onPressed, required this.label,
-    super.child, required this.svg}) : super();
+  BigMenuButton(
+      {super.key,
+      required this.onPressed,
+      required this.label,
+      super.child,
+      required this.svg})
+      : super();
 
   //final Widget? child;
   //Will also need a variable to add an image here but I'm forgetting how to do that right now
@@ -72,7 +79,6 @@ class BigMenuButton extends Container {
   String svg;
 
   Widget _buildSVGFromString(double minHeigt, double minWidth) {
-
     return SvgPicture.asset(
       svg,
       semanticsLabel: svg.substring("assets/images/".length),
@@ -83,10 +89,10 @@ class BigMenuButton extends Container {
 
   @override
   Widget build(BuildContext context) {
-
     //So this math works. Will need to come back and do the math for height once we've got
     //more of the main menu going
     final minButtonWidth = 0.5 * (MediaQuery.of(context).size.width - 60);
+
     final buttonHeight = (MediaQuery.of(context).size.height * 0.75 * 0.25) - 60;
 
     final svgImage = _buildSVGFromString(buttonHeight, minButtonWidth);
@@ -138,7 +144,8 @@ class BigMenuButton extends Container {
 }
 
 class LoginMenuButton extends Container {
-  LoginMenuButton({super.key, required this.onPressed, required super.child}) : super();
+  LoginMenuButton({super.key, required this.onPressed, required super.child})
+      : super();
 
   void Function()? onPressed;
   //Text label;
@@ -149,10 +156,8 @@ class LoginMenuButton extends Container {
       onPressed: onPressed,
       child: child,
       style: ElevatedButton.styleFrom(
-        minimumSize: Size(MediaQuery.of(context).size.width * 0.7, 55),
-        maximumSize: Size(MediaQuery.of(context).size.width * 0.75, 55)
-      ),
+          minimumSize: Size(MediaQuery.of(context).size.width * 0.7, 55),
+          maximumSize: Size(MediaQuery.of(context).size.width * 0.75, 55)),
     );
   }
-
 }
