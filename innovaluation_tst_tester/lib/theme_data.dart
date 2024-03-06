@@ -92,51 +92,54 @@ class BigMenuButton extends Container {
     //So this math works. Will need to come back and do the math for height once we've got
     //more of the main menu going
     final minButtonWidth = 0.5 * (MediaQuery.of(context).size.width - 60);
-    final buttonHeight =
-        (MediaQuery.of(context).size.height * 0.75 * 0.25) - 72;
+
+    final buttonHeight = (MediaQuery.of(context).size.height * 0.75 * 0.25) - 60;
 
     final svgImage = _buildSVGFromString(buttonHeight, minButtonWidth);
 
     // TODO: implement build
     return ElevatedButton(
-        //This button style setup is extremely obnoxious. But now I guess I get why
-        //figma made these things containers.
-        style: ElevatedButton.styleFrom(
-            shadowColor: Colors.grey,
-            minimumSize: Size(minButtonWidth, buttonHeight),
-            maximumSize: Size(minButtonWidth, buttonHeight),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.all(9),
-            alignment: Alignment.topLeft,
-            textStyle: TextStyle(
-                fontSize: minButtonWidth * 0.08,
-                color: const Color(0xFF1A1A1A),
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.3)),
-        onPressed: onPressed,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                label,
-                //SizedBox(width: minButtonWidth * 0.75,)
-              ],
-            ),
-            SizedBox(
-              height: buttonHeight * 0.35,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                //SizedBox(width: minButtonWidth * 0.75,),
-                svgImage,
-                SizedBox(width: 5)
-              ],
-            )
-          ],
-        ));
+      //This button style setup is extremely obnoxious. But now I guess I get why
+      //figma made these things containers.
+      style: ElevatedButton.styleFrom(
+        shadowColor: Colors.grey,
+        minimumSize: Size(minButtonWidth, buttonHeight),
+        maximumSize: Size(minButtonWidth, buttonHeight),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10)
+        ),
+        padding: const EdgeInsets.all(9),
+        alignment: Alignment.topLeft,
+        textStyle: TextStyle(
+          fontSize: minButtonWidth * 0.08,
+          color: const Color(0xFF1A1A1A),
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.3
+        )
+      ),
+      onPressed: onPressed,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              label,
+              //SizedBox(width: minButtonWidth * 0.75,)
+            ],
+          ),
+          SizedBox(height: buttonHeight * 0.35,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              //SizedBox(width: minButtonWidth * 0.75,),
+              svgImage,
+              SizedBox(width: 5)
+            ],
+          ),
+        ],
+      )
+
+    );
   }
 }
 

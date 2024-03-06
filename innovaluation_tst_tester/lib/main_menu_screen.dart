@@ -6,11 +6,35 @@ import 'package:innovaluation_tst_tester/questionnaire_screen.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'login_screen.dart';
 import 'photo_button.dart';
+import 'package:innovaluation_tst_tester/camera_service.dart'; // Import the camera_service.dart file
+import 'package:camera/camera.dart'; // Import the camera package
+
 
 class MainMenuView extends StatelessWidget {
 
   void _logoutPressed() {
     FirebaseAuth.instance.signOut();
+  }
+
+  Future<void> _navigateToCamera(BuildContext context) async {
+    try {
+      // Get the list of available cameras.
+      final cameras = await availableCameras();
+
+      // Get a specific camera from the list of available cameras.
+      final firstCamera = cameras.first;
+
+      // Navigate to the InstructionsScreen widget, passing the first camera.
+      // InstructionsScreen will then handle navigating to TakePictureScreen.
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => InstructionsScreen(camera: firstCamera),
+        ),
+      );
+    } catch (e) {
+      // Handle any errors here
+      print(e); // Consider showing an alert or a toast to the user
+    }
   }
 
   @override
@@ -65,14 +89,14 @@ class MainMenuView extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0,
-                            right: 16.0), // Add right padding here
+                            right: 8.0), // Add right padding here
                         child: IconButton(
                           onPressed: () {
                             // Handle logo button pressed
                           },
                           icon: SvgPicture.asset(
                             'assets/images/notif.svg',
-                            height: 30,
+                            height: 25,
                           ),
                           padding: const EdgeInsets.all(0),
                           //constraints: const BoxConstraints(),
@@ -82,7 +106,8 @@ class MainMenuView extends StatelessWidget {
                   ),
                   //This one will be for the label because not putting it in a row seems to autocenter it
                   //SizedBox(height: 25,),
-                  Row(
+                  Expanded(child:
+                    Row(
                     children: [
                       SizedBox(width: MediaQuery.of(context).size.width * 0.06),
                       const Text(
@@ -93,7 +118,7 @@ class MainMenuView extends StatelessWidget {
                             letterSpacing: -0.2),
                       )
                     ],
-                  )
+                  ))
                 ],
               ),
             ),
@@ -145,10 +170,10 @@ class MainMenuView extends StatelessWidget {
                                   ),
                                   BigMenuButton(
                                     onPressed: () {
-                                      print("Records button pressed");
+                                      _navigateToCamera(context);
                                     },
-                                    label: Text("Records"),
-                                    svg: "assets/images/recordBlock.svg",
+                                    label: Text("Take Picture"),
+                                    svg: "assets/images/camera.svg",
                                   )
                                 ],
                               ),
@@ -181,8 +206,19 @@ class MainMenuView extends StatelessWidget {
                                     onPressed: () {},
                                     label: Text("Help"),
                                     svg: "assets/images/clipboard1.svg",
-                                  )
-                                ],
+                                  ),
+                              
+                              SizedBox(
+                                width: 24,
+                              ),
+                                BigMenuButton(
+                                  onPressed: () {
+                                    _navigateToCamera(context);
+                                  },
+                                  label: Text("Take Picture"),
+                                  svg: "assets/images/camera.svg",
+                                )
+                            ],
                               ),
                             ],
                           ),
@@ -226,3 +262,5 @@ class CustomScrollPhysics extends ScrollPhysics {
     return super.applyPhysicsToUserOffset(position, offset);
   }
 }
+
+
