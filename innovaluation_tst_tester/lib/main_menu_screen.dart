@@ -215,8 +215,8 @@ class MainMenuView extends StatelessWidget {
                                   onPressed: () {
                                     _navigateToCamera(context);
                                   },
-                                  label: Text("Records"),
-                                  svg: "assets/images/recordBlock.svg",
+                                  label: Text("Take Picture"),
+                                  svg: "assets/images/camera.svg",
                                 )
                             ],
                               ),
