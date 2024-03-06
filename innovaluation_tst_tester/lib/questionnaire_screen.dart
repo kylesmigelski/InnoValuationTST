@@ -13,25 +13,94 @@ class QuestionnaireScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _QuestionnaireScreenState();
 }
 
+class QuizProgressBar extends StatelessWidget {
+  final int currentQuestionIndex;
+  final int totalQuestions = 3;
+  final double progressValue;
+
+  QuizProgressBar({
+    Key? key,
+    required this.currentQuestionIndex,
+    required this.progressValue,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(height: 8), // Spacing between text and progress bar
+        Stack(
+          children: [
+            Container(
+              height: 8,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: AnimatedContainer(
+                height: 8,
+                width: MediaQuery.of(context).size.width * progressValue,
+                duration: Duration(milliseconds: 100),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment(1.00, 0.00),
+                    end: Alignment(-1, 0),
+                    colors: [Color(0xFF4B82C4), Color(0xFF7A49E3)],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12), // Spacing between progress bar and text
+        Align(
+          alignment: Alignment.centerLeft,
+        child: Text(
+          "Question ${currentQuestionIndex + 1} of $totalQuestions",
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF646464),
+          ),
+        ),
+        ),
+      ],
+    );
+  }
+}
+
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   final _questionList = [
     "Have you been out of the country in the past 30 days?",
     "Have you been in contact with someone who was confirmed positive for Tuberculosis in the past 3 days?",
     "Are you immunocompromised?"
   ];
-  final List<bool> _answers = [];
-  final Map<String, bool> _answerMap = {};
+  List<bool?> _answers = List.filled(3, null);
+  final Map<String, bool?> _answerMap = {};
 
+  // Counter for the current question
   var _counter = 0;
   bool? _selectedAnswer;
+  bool _hasMadeChoice = false;
+
+  double get _progressValue {
+    // Calculate the progress including the user's selection
+    return (_counter + (_hasMadeChoice ? 1 : 0)) / _questionList.length;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text("Health Questionnaire",
-        style: TextStyle(color: Colors.white),),
+        title: Text(
+          "Health Questionnaire",
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -60,107 +129,194 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   Widget _buildContentSection() {
     return Expanded(
+      // White background container with rounded corners
       child: Container(
         width: MediaQuery.of(context).size.width,
         margin: const EdgeInsets.only(top: 1),
         decoration: const ShapeDecoration(
-          color: Color(0xFFE8E8E8),
+          color: Color.fromARGB(255, 237, 237, 237),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20), 
-              topRight: Radius.circular(20)
-            )
-          ),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20), topRight: Radius.circular(20))),
         ),
-        padding: EdgeInsets.symmetric(vertical: 40, horizontal: 25),
-        child: _buildQuestionsAndAnswers(),
+
+        padding: EdgeInsets.symmetric(vertical: 25, horizontal: 25),
+        child: Column(
+          children: [
+            QuizProgressBar(currentQuestionIndex: _counter, progressValue: _progressValue),
+            SizedBox(height: 40),
+            _buildQuestionsAndAnswers(),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildQuestionsAndAnswers() {
+    // Question
+    _selectedAnswer = _answers[_counter];
     return Column(
       children: [
         if (_counter < _questionList.length)
           Text(
             _questionList[_counter],
-            style: TextStyle(fontSize: 20
-            , color: Colors.black),
-            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+                height: 0),
+            textAlign: TextAlign.left,
           ),
+        // Add some space between the question and the answer buttons
         SizedBox(height: 40),
-        ..._setUpRadioButtons(),
-        SizedBox(height: 25),
+        if (_counter < _questionList.length) ..._setUpAnswerButtons(),
+
+        // Add some space between the answer buttons and the navigation buttons
+        SizedBox(height: 80),
         _buildNavigationButtons(),
       ],
     );
   }
 
-  List<Widget> _setUpRadioButtons() {
-    return ["yes", "no"].map((answer) {
-      return ListTile(
-        title: Text(
-          answer,
-          style: TextStyle(fontSize: 22, color: Colors.black),
-        ),
-        leading: Radio<bool>(
-          fillColor: MaterialStateProperty.resolveWith((states) => Colors.white),
-          activeColor: Colors.white,
-          value: answer == "yes",
-          groupValue: _selectedAnswer,
-          onChanged: (bool? value) {
+  ButtonStyle _answerButtonStyle(bool isSelected, BuildContext context) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: isSelected ? Color(0xFF2B1953) : Colors.white,
+      foregroundColor: isSelected ? Colors.white : Colors.black,
+      side: isSelected
+          ? BorderSide.none
+          : BorderSide(color: Theme.of(context).primaryColor),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      elevation: isSelected ? 6 : 3,
+      padding: EdgeInsets.symmetric(
+          horizontal: 20, vertical: 20), // Padding inside the button
+      // Minimum size can be adjusted as needed
+      minimumSize: Size(150, 70),
+    );
+  }
+
+  List<Widget> _setUpAnswerButtons() {
+    return ["Yes", "No"].map((answer) {
+      bool isSelected = _selectedAnswer == (answer == "Yes");
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+            vertical: 12), // Adds padding between the buttons
+        child: ElevatedButton(
+          style: _answerButtonStyle(isSelected, context),
+          onPressed: () {
             setState(() {
-              _selectedAnswer = value;
+              _selectedAnswer = answer == "Yes";
+              _answers[_counter] = _selectedAnswer; // Store the answer
+              _hasMadeChoice = true;
             });
           },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment
+                .start, // Aligns content to the left side of the button
+            children: [
+              // The custom radio button icon
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
+                        ? Theme.of(context).primaryColor
+                        : Colors.grey, // Border color
+                    width: 2.0,
+                  ),
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Colors.transparent, // Fill color
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: isSelected
+                      ? Icon(
+                          Icons.circle,
+                          size: 12.0,
+                          color:
+                              Colors.blue, // Inner circle color when selected
+                        )
+                      : Icon(
+                          Icons.circle,
+                          size: 12.0,
+                          color: Colors
+                              .transparent, // Inner circle color when not selected
+                        ),
+                ),
+              ),
+              SizedBox(
+                  width:
+                      20), // Provide some space between the icon and the text
+              Text(
+                answer,
+                style: TextStyle(fontSize: 22),
+              ),
+            ],
+          ),
         ),
       );
     }).toList();
+  }
+
+  Widget _buildNavigationButton(
+      String label, IconData icon, VoidCallback onPressed, bool isPrimary) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon:
+          Icon(icon, size: 24, color: isPrimary ? Colors.white : Colors.black),
+      label: Text(label,
+          style: TextStyle(color: isPrimary ? Colors.white : Colors.black)),
+      style: ElevatedButton.styleFrom(
+        primary: isPrimary ? Colors.blue : Color(0xFFD9D9D9),
+        onPrimary: Colors.black,
+        padding:
+            EdgeInsets.symmetric(horizontal: isPrimary ? 50 : 20, vertical: 20),
+        shape: StadiumBorder(),
+        elevation: 2,
+        textStyle: TextStyle(fontSize: 18),
+      ),
+    );
   }
 
   Widget _buildNavigationButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        if (_counter < _questionList.length)
-          ElevatedButton(
-            onPressed: () => _handleNext(),
-            child: Text("Next"),
-          ),
-        if (_counter > 0) // Adjust logic as needed
+        if (_counter > 0)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ElevatedButton(
-              onPressed: () => _handleBack(),
-              child: Text("Back"),
-            ),
+            child: _buildNavigationButton(
+                "Back", Icons.arrow_back, _handleBack, false),
           ),
-        if (_counter == _questionList.length)
-          ElevatedButton(
-            onPressed: _submitButtonPressed,
-            child: Text("Submit"),
-          ),
+        if (_counter < _questionList.length - 1)
+          _buildNavigationButton(
+              "Next", Icons.arrow_forward, _handleNext, true),
+        if (_counter == _questionList.length - 1)
+          _buildNavigationButton(
+              "Submit", Icons.check, _submitButtonPressed, true),
       ],
     );
   }
 
   void _handleNext() {
-    if (_selectedAnswer != null) {
+    if (_hasMadeChoice || _selectedAnswer != null) {
+      // Move to the next question
       setState(() {
-        _answers.add(_selectedAnswer!);
-        _selectedAnswer = null;
         _counter++;
+        _hasMadeChoice = false; // Reset choice indicator
+        _selectedAnswer = null; // Reset the selected answer for the next question
       });
     }
   }
 
   void _handleBack() {
+    // Logic to handle the back action
     setState(() {
-      --_counter;
-      _selectedAnswer = _answers.isNotEmpty ? _answers.last : null;
-      if (_answers.isNotEmpty) {
-        _answers.removeLast();
-      }
+      if (_counter > 0) _counter--;
+      _hasMadeChoice = _answers[_counter] != null; // Check if the previous question was answered
+      _selectedAnswer = _answers[_counter]; // Restore the selected answer for the current question
     });
   }
 
@@ -170,12 +326,13 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     }
 
     final answersDocumentPath = "${_authenticatedUser.uid}";
-    final username = _authenticatedUser.email!.substring(0, _authenticatedUser.email!.indexOf('@'));
+    final username = _authenticatedUser.email!
+        .substring(0, _authenticatedUser.email!.indexOf('@'));
 
-    await FirebaseFirestore.instance.collection('users').doc(answersDocumentPath).set({
-      'username': username, 
-      'Answers': _answerMap
-    });
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(answersDocumentPath)
+        .set({'username': username, 'Answers': _answerMap});
 
     Navigator.of(context).pop();
   }
