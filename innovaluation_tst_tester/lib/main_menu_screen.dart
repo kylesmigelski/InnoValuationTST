@@ -16,6 +16,27 @@ class MainMenuView extends StatelessWidget {
     FirebaseAuth.instance.signOut();
   }
 
+  Future<void> _navigateToCamera(BuildContext context) async {
+    try {
+      // Get the list of available cameras.
+      final cameras = await availableCameras();
+
+      // Get a specific camera from the list of available cameras.
+      final firstCamera = cameras.first;
+
+      // Navigate to the InstructionsScreen widget, passing the first camera.
+      // InstructionsScreen will then handle navigating to TakePictureScreen.
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => InstructionsScreen(camera: firstCamera),
+        ),
+      );
+    } catch (e) {
+      // Handle any errors here
+      print(e); // Consider showing an alert or a toast to the user
+    }
+  }
+
   @override
   Widget build(context) {
     return Scaffold(
@@ -111,7 +132,7 @@ class MainMenuView extends StatelessWidget {
                   print("Refreshed");
                 },
                 child: ListView(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: CustomScrollPhysics(),
                   children: [
                     Stack(
                       alignment: Alignment.topCenter,
@@ -149,10 +170,10 @@ class MainMenuView extends StatelessWidget {
                                   ),
                                   BigMenuButton(
                                     onPressed: () {
-                                      print("Records button pressed");
+                                      _navigateToCamera(context);
                                     },
-                                    label: Text("Records"),
-                                    svg: "assets/images/recordBlock.svg",
+                                    label: Text("Take Picture"),
+                                    svg: "assets/images/camera.svg",
                                   )
                                 ],
                               ),
@@ -242,26 +263,4 @@ class CustomScrollPhysics extends ScrollPhysics {
   }
 }
 
-
-
-Future<void> _navigateToCamera(BuildContext context) async {
-  try {
-    // Get the list of available cameras.
-    final cameras = await availableCameras();
-
-    // Get a specific camera from the list of available cameras.
-    final firstCamera = cameras.first;
-
-    // Navigate to the InstructionsScreen widget, passing the first camera.
-    // InstructionsScreen will then handle navigating to TakePictureScreen.
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => InstructionsScreen(camera: firstCamera),
-      ),
-    );
-  } catch (e) {
-    // Handle any errors here
-    print(e); // Consider showing an alert or a toast to the user
-  }
-}
 
