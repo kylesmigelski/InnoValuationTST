@@ -9,7 +9,6 @@ import 'photo_button.dart';
 import 'package:innovaluation_tst_tester/camera_service.dart'; // Import the camera_service.dart file
 import 'package:camera/camera.dart'; // Import the camera package
 
-
 class MainMenuView extends StatelessWidget {
 
   void _logoutPressed() {
