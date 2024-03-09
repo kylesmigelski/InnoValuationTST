@@ -175,7 +175,7 @@ class DisplayPictureScreen extends StatelessWidget {
 
   const DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
 
-  Future<void> _uploadImageToFirestore(Position position) async {
+  Future<void> _uploadImageToFirestore(Position? position) async {
     // Get the file from the imagePath
     File file = File(imagePath);
 
@@ -191,12 +191,22 @@ class DisplayPictureScreen extends StatelessWidget {
     // Get the download URL for the file
     String downloadURL = await ref.getDownloadURL();
 
-    // Add the download URL to Firestore
-    await FirebaseFirestore.instance.collection('images').add({
+    // Create a data map for Firestore
+    Map<String, dynamic> data = {
       'url': downloadURL,
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    };
+
+    // Add position data if available
+    if (position != null) {
+      data['latitude'] = position.latitude;
+      data['longitude'] = position.longitude;
+    }
+
+    // Add the data to Firestore
+    await FirebaseFirestore.instance.collection('images').add(data);
   }
+
 
   /// Determine the current position of the device.
   ///
@@ -256,13 +266,20 @@ class DisplayPictureScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   // User confirms the picture, send to database, navigate back to main menu
+                  Position? pos;
                   try {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Uploading image'),
-                        )
+                    const SnackBar(
+                    content: Text('Uploading image'),
+                    )
                     );
-                    await _uploadImageToFirestore(await _determinePosition());
+                    pos = await _determinePosition();
+                  } catch (error) {
+                    pos = null;
+                    print("error getting location: $error");
+                  }
+                  try {
+                    await _uploadImageToFirestore(pos);
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Uploaded'),
@@ -274,7 +291,7 @@ class DisplayPictureScreen extends StatelessWidget {
                     );
                   } catch (error) {
                     // Handle error
-                    log('$error', name: 'MyApp', error: 'Something went wrong');                    // Show an error message to the user
+                    print("error uploading data: $error");                   // Show an error message to the user
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                         content: Text('Failed to upload image. Please try again.'),
