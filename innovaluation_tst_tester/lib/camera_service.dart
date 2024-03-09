@@ -258,6 +258,7 @@ class DisplayPictureScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   Position? pos;
+                  // Ensuring user grants location permission
                   try {
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -269,7 +270,7 @@ class DisplayPictureScreen extends StatelessWidget {
                     print("error getting location data: $error");
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please allow location permissions.'),
+                          content: Text('Please allow location permissions to continue.'),
                         )
                     );
                     Navigator.pop(context, false);
