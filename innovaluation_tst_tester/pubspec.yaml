@@ -46,6 +46,7 @@ dependencies:
   # Firebase-related dependencies (who are we kidding? Probably no one is going to look at this)
   firebase_core: ^2.25.3
   cloud_firestore: ^4.15.3
+  geolocator: ^11.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
