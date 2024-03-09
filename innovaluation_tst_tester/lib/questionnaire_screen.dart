@@ -13,66 +13,6 @@ class QuestionnaireScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _QuestionnaireScreenState();
 }
 
-class QuizProgressBar extends StatelessWidget {
-  final int currentQuestionIndex;
-  final int totalQuestions = 3;
-  final double progressValue;
-
-  QuizProgressBar({
-    Key? key,
-    required this.currentQuestionIndex,
-    required this.progressValue,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(height: 8), // Spacing between text and progress bar
-        Stack(
-          children: [
-            Container(
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: AnimatedContainer(
-                height: 8,
-                width: MediaQuery.of(context).size.width * progressValue,
-                duration: Duration(milliseconds: 100),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment(1.00, 0.00),
-                    end: Alignment(-1, 0),
-                    colors: [Color(0xFF4B82C4), Color(0xFF7A49E3)],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12), // Spacing between progress bar and text
-        Align(
-          alignment: Alignment.centerLeft,
-        child: Text(
-          "Question ${currentQuestionIndex + 1} of $totalQuestions",
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF646464),
-          ),
-        ),
-        ),
-      ],
-    );
-  }
-}
-
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   final _questionList = [
     "Have you been out of the country in the past 30 days?",
@@ -90,6 +30,43 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   double get _progressValue {
     // Calculate the progress including the user's selection
     return (_counter + (_hasMadeChoice ? 1 : 0)) / _questionList.length;
+  }
+
+  void _handleNext() {
+    if (_hasMadeChoice || _selectedAnswer != null) {
+      // Move to the next question
+      setState(() {
+        _counter++;
+        _hasMadeChoice = false; // Reset choice indicator
+        _selectedAnswer = null; // Reset the selected answer for the next question
+      });
+    }
+  }
+
+  void _handleBack() {
+    // Logic to handle the back action
+    setState(() {
+      if (_counter > 0) _counter--;
+      _hasMadeChoice = _answers[_counter] != null; // Check if the previous question was answered
+      _selectedAnswer = _answers[_counter]; // Restore the selected answer for the current question
+    });
+  }
+
+  void _submitButtonPressed() async {
+    for (int i = 0; i < _questionList.length; i++) {
+      _answerMap[_questionList[i]] = _answers[i];
+    }
+
+    final answersDocumentPath = "${_authenticatedUser.uid}";
+    final username = _authenticatedUser.email!
+        .substring(0, _authenticatedUser.email!.indexOf('@'));
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(answersDocumentPath)
+        .set({'username': username, 'Answers': _answerMap}, SetOptions(merge: true));
+
+    Navigator.of(context).pop();
   }
 
   @override
@@ -143,7 +120,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         padding: EdgeInsets.symmetric(vertical: 25, horizontal: 25),
         child: Column(
           children: [
-            QuizProgressBar(currentQuestionIndex: _counter, progressValue: _progressValue),
+            _QuizProgressBar(currentQuestionIndex: _counter, progressValue: _progressValue),
             SizedBox(height: 40),
             _buildQuestionsAndAnswers(),
           ],
@@ -299,41 +276,64 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       ],
     );
   }
+}
 
-  void _handleNext() {
-    if (_hasMadeChoice || _selectedAnswer != null) {
-      // Move to the next question
-      setState(() {
-        _counter++;
-        _hasMadeChoice = false; // Reset choice indicator
-        _selectedAnswer = null; // Reset the selected answer for the next question
-      });
-    }
-  }
+class _QuizProgressBar extends StatelessWidget {
+  final int currentQuestionIndex;
+  final int totalQuestions = 3;
+  final double progressValue;
 
-  void _handleBack() {
-    // Logic to handle the back action
-    setState(() {
-      if (_counter > 0) _counter--;
-      _hasMadeChoice = _answers[_counter] != null; // Check if the previous question was answered
-      _selectedAnswer = _answers[_counter]; // Restore the selected answer for the current question
-    });
-  }
+  _QuizProgressBar({
+    Key? key,
+    required this.currentQuestionIndex,
+    required this.progressValue,
+  }) : super(key: key);
 
-  void _submitButtonPressed() async {
-    for (int i = 0; i < _questionList.length; i++) {
-      _answerMap[_questionList[i]] = _answers[i];
-    }
-
-    final answersDocumentPath = "${_authenticatedUser.uid}";
-    final username = _authenticatedUser.email!
-        .substring(0, _authenticatedUser.email!.indexOf('@'));
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(answersDocumentPath)
-        .set({'username': username, 'Answers': _answerMap});
-
-    Navigator.of(context).pop();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(height: 8), // Spacing between text and progress bar
+        Stack(
+          children: [
+            Container(
+              height: 8,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: AnimatedContainer(
+                height: 8,
+                width: MediaQuery.of(context).size.width * progressValue,
+                duration: Duration(milliseconds: 100),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment(1.00, 0.00),
+                    end: Alignment(-1, 0),
+                    colors: [Color(0xFF4B82C4), Color(0xFF7A49E3)],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12), // Spacing between progress bar and text
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Question ${currentQuestionIndex + 1} of $totalQuestions",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF646464),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

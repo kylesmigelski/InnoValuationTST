@@ -2,33 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:innovaluation_tst_tester/main_menu_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 
-Future<void> main() async {
-  // Ensure that plugin services are initialized so that `availableCameras()`
-  // can be called before `runApp()`
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Obtain a list of the available cameras on the device.
-  final cameras = await availableCameras();
-
-  // Get a specific camera from the list of available cameras.
-  final firstCamera = cameras.first;
-
-  runApp(
-    MaterialApp(
-      theme: ThemeData.dark(),
-      home: InstructionsScreen(
-        // Pass the appropriate camera to the TakePictureScreen widget.
-        camera: firstCamera,
-      ),
-    ),
-  );
-}
+final _currentUser = FirebaseAuth.instance.currentUser!;
 
 class InstructionsScreen extends StatelessWidget {
   final CameraDescription camera;
@@ -176,12 +157,14 @@ class DisplayPictureScreen extends StatelessWidget {
   Future<void> _uploadImageToFirestore() async {
     // Get the file from the imagePath
     File file = File(imagePath);
+    DateTime currentDateTime = DateTime.now();
+    final imagePath4Firestore = '${_currentUser.uid} - ${currentDateTime}';
 
     // Create a reference to the Firebase storage location
     firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
         .ref()
         .child('images')
-        .child('image.jpg');
+        .child(imagePath4Firestore);
 
     // Upload the file to Firebase storage
     await ref.putFile(file);
@@ -194,6 +177,37 @@ class DisplayPictureScreen extends StatelessWidget {
       'url': downloadURL,
       'createdAt': FieldValue.serverTimestamp(),
     });
+
+    List<String>? snapshotPathList = null;
+
+    DocumentReference currentUserDocRef = await FirebaseFirestore.instance.collection("users").
+      doc(_currentUser.uid);
+
+    print("Hot to here");
+
+    await currentUserDocRef.get().then(
+        (DocumentSnapshot doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          print(data);
+          snapshotPathList = (data.containsKey('photosList')) ? (data['photosList'] as List)
+              .map((e) => e as String).toList() : null;
+        }
+    );
+
+    if (snapshotPathList == null) {
+      print("No photosList");
+      snapshotPathList = [imagePath4Firestore];
+    } else {
+      snapshotPathList!.add(imagePath4Firestore);
+      print(snapshotPathList!);
+    }
+
+    print("This got here");
+
+    await FirebaseFirestore.instance.collection('users').
+      doc(_currentUser!.uid).update({'photosList' : snapshotPathList});
+
+
   }
 
   @override
@@ -259,4 +273,26 @@ class DisplayPictureScreen extends StatelessWidget {
   }
 }
 
+//Pretty sure that this is a dead/unused method. So I'm stuffing it down here so
+// I don't have to look at it
+Future<void> main() async {
+  // Ensure that plugin services are initialized so that `availableCameras()`
+  // can be called before `runApp()`
+  WidgetsFlutterBinding.ensureInitialized();
 
+  // Obtain a list of the available cameras on the device.
+  final cameras = await availableCameras();
+
+  // Get a specific camera from the list of available cameras.
+  final firstCamera = cameras.first;
+
+  runApp(
+    MaterialApp(
+      theme: ThemeData.dark(),
+      home: InstructionsScreen(
+        // Pass the appropriate camera to the TakePictureScreen widget.
+        camera: firstCamera,
+      ),
+    ),
+  );
+}
