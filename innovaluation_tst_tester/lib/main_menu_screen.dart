@@ -9,13 +9,25 @@ import 'photo_button.dart';
 import 'package:innovaluation_tst_tester/camera_service.dart'; // Import the camera_service.dart file
 import 'package:camera/camera.dart'; // Import the camera package
 
-class MainMenuView extends StatelessWidget {
+class MainMenuView extends StatefulWidget {
+  @override
+  State createState() => _MainMenuViewState();
+
+}
+
+class _MainMenuViewState extends State<MainMenuView> {
 
   void _logoutPressed() {
     FirebaseAuth.instance.signOut();
   }
 
-  Future<void> _navigateToCamera(BuildContext context) async {
+  void _questionnairePressed() {
+    Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => QuestionnaireScreen())
+    );
+  }
+
+  Future<void> _navigateToCamera() async {
     try {
       // Get the list of available cameras.
       final cameras = await availableCameras();
@@ -155,13 +167,8 @@ class MainMenuView extends StatelessWidget {
                               Row(
                                 children: [
                                   BigMenuButton(
-                                    onPressed: () {
-                                      print("Sign up button pressed");
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) => QuestionnaireScreen())
-                                      );
-                                    },
-                                    label: const Text("Take Questionnaire"),
+                                    onPressed: _questionnairePressed,
+                                    label: const Text("Log Visit"),
                                     svg: "assets/images/pencil1.svg",
                                   ),
                                   const SizedBox(
@@ -169,9 +176,9 @@ class MainMenuView extends StatelessWidget {
                                   ),
                                   BigMenuButton(
                                     onPressed: () {
-                                      _navigateToCamera(context);
+                                      _navigateToCamera;
                                     },
-                                    label: Text("Take Picture"),
+                                    label: Text("1st Picture"),
                                     svg: "assets/images/camera.svg",
                                   )
                                 ],
@@ -183,7 +190,7 @@ class MainMenuView extends StatelessWidget {
                                 children: [
                                   BigMenuButton(
                                     onPressed: () {},
-                                    label: const Text("Analysis"),
+                                    label: const Text("Questionnaire"),
                                     svg: "assets/images/clipboard2.svg",
                                   ),
                                   const SizedBox(
@@ -191,7 +198,7 @@ class MainMenuView extends StatelessWidget {
                                   ),
                                   BigMenuButton(
                                     onPressed: () {},
-                                    label: const Text("Visits"),
+                                    label: const Text("Follow-up Photos"),
                                     svg: "assets/images/calandar.svg",
                                   )
                                 ],
@@ -210,13 +217,13 @@ class MainMenuView extends StatelessWidget {
                               SizedBox(
                                 width: 24,
                               ),
-                                BigMenuButton(
-                                  onPressed: () {
-                                    _navigateToCamera(context);
-                                  },
-                                  label: Text("Take Picture"),
-                                  svg: "assets/images/camera.svg",
-                                )
+                                // BigMenuButton(
+                                //   onPressed: () {
+                                //     _navigateToCamera;
+                                //   },
+                                //   label: Text("Take Picture"),
+                                //   svg: "assets/images/camera.svg",
+                                // )
                             ],
                               ),
                             ],
