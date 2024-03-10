@@ -152,30 +152,46 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
 // A widget that displays the picture taken by the user.
 class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
 
-  const DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
+  DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
+
+  final String imagePath;
+  final _cloudFirestoreImageFolderLocation = FirebaseFirestore.instance
+      .collection('images');
+  final _currentUserDocRef = FirebaseFirestore.instance.collection("users").
+  doc(_currentUser.uid);
+
+
 
   Future<void> _uploadImageToFirestore(Position position) async {
     // Get the file from the imagePath
+
     File file = File(imagePath);
+    print(imagePath);
     DateTime currentDateTime = DateTime.now();
     final imagePath4Firestore = '${_currentUser.uid} - ${currentDateTime}';
 
+    //file.rename(newPath) = imagePath4Firestore;
+
     // Create a reference to the Firebase storage location
-    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+    //So this statement is actually what sets the path that we'll upload the image to
+    firebase_storage.Reference ref = await firebase_storage.FirebaseStorage.instance
         .ref()
         .child('images')
         .child(imagePath4Firestore);
 
     // Upload the file to Firebase storage
+    // then this is us actually putting the image up in there
     await ref.putFile(file);
 
     // Get the download URL for the file
     String downloadURL = await ref.getDownloadURL();
 
     // Add the download URL and location to Firestore
-    await FirebaseFirestore.instance.collection('images').add({
+    //This way we can actually set the names for our imagees. Will make it easy to
+    //comb through when we inevitably have to do that.
+    print(imagePath4Firestore);
+    _cloudFirestoreImageFolderLocation.doc(imagePath4Firestore).set({
       'url': downloadURL,
       'createdAt': FieldValue.serverTimestamp(),
       'latitude': position.latitude,
@@ -184,12 +200,9 @@ class DisplayPictureScreen extends StatelessWidget {
 
     List<String>? snapshotPathList = null;
 
-    DocumentReference currentUserDocRef = await FirebaseFirestore.instance.collection("users").
-      doc(_currentUser.uid);
-
     print("Hot to here");
 
-    await currentUserDocRef.get().then(
+    await _currentUserDocRef.get().then(
         (DocumentSnapshot doc) {
           final data = doc.data() as Map<String, dynamic>;
           print(data);
@@ -200,18 +213,15 @@ class DisplayPictureScreen extends StatelessWidget {
 
     if (snapshotPathList == null) {
       print("No photosList");
-      snapshotPathList = [imagePath4Firestore];
+      snapshotPathList = [downloadURL];
     } else {
-      snapshotPathList!.add(imagePath4Firestore);
+      snapshotPathList!.add(downloadURL);
       print(snapshotPathList!);
     }
 
     print("This got here");
 
-    await FirebaseFirestore.instance.collection('users').
-      doc(_currentUser!.uid).update({'photosList' : snapshotPathList});
-
-
+    _currentUserDocRef.update({'photosList' : snapshotPathList});
   }
 
   /// Determine the current position of the device.
