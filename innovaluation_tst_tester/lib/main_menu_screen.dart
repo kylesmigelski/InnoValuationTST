@@ -17,6 +17,8 @@ class MainMenuView extends StatefulWidget {
 
 class _MainMenuViewState extends State<MainMenuView> {
 
+  late CameraDescription _firstCamera;
+
   void _logoutPressed() {
     FirebaseAuth.instance.signOut();
   }
@@ -25,6 +27,18 @@ class _MainMenuViewState extends State<MainMenuView> {
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => QuestionnaireScreen())
     );
+  }
+
+  void _go2CameraScreen() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => InstructionsScreen(camera: _firstCamera))
+    );
+  }
+
+  Future<CameraDescription> _getCameraStuff() async {
+    final cameras = await availableCameras();
+
+    return cameras.first;
   }
 
   Future<void> _navigateToCamera() async {
@@ -37,7 +51,7 @@ class _MainMenuViewState extends State<MainMenuView> {
 
       // Navigate to the InstructionsScreen widget, passing the first camera.
       // InstructionsScreen will then handle navigating to TakePictureScreen.
-      await Navigator.of(context).push(
+       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => InstructionsScreen(camera: firstCamera),
         ),
@@ -46,6 +60,19 @@ class _MainMenuViewState extends State<MainMenuView> {
       // Handle any errors here
       print(e); // Consider showing an alert or a toast to the user
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getCameraStuff().then(
+            (value) {
+              setState(() {
+                _firstCamera = value;
+              });
+            }
+    );
   }
 
   @override
@@ -64,6 +91,28 @@ class _MainMenuViewState extends State<MainMenuView> {
             SizedBox(width: 15,),
             BackButton(
               onPressed: _logoutPressed,
+            ),
+            Container(
+              width: 127,
+              height: 97.28,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(),
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 26,
+                    top: 8,
+                    child: Container(
+                      width: 75.66,
+                      height: 75.66,
+                      decoration: ShapeDecoration(
+                        color: Color(0xFF2B1953),
+                        shape: OvalBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             )
           ],
         ),
@@ -167,7 +216,7 @@ class _MainMenuViewState extends State<MainMenuView> {
                               Row(
                                 children: [
                                   BigMenuButton(
-                                    onPressed: _questionnairePressed,
+                                    onPressed: () {},
                                     label: const Text("Log Visit"),
                                     svg: "assets/images/pencil1.svg",
                                   ),
@@ -175,9 +224,7 @@ class _MainMenuViewState extends State<MainMenuView> {
                                     width: 24,
                                   ),
                                   BigMenuButton(
-                                    onPressed: () {
-                                      _navigateToCamera;
-                                    },
+                                    onPressed: _navigateToCamera,
                                     label: Text("1st Picture"),
                                     svg: "assets/images/camera.svg",
                                   )
@@ -189,7 +236,7 @@ class _MainMenuViewState extends State<MainMenuView> {
                               Row(
                                 children: [
                                   BigMenuButton(
-                                    onPressed: () {},
+                                    onPressed: _questionnairePressed,
                                     label: const Text("Questionnaire"),
                                     svg: "assets/images/clipboard2.svg",
                                   ),
@@ -197,7 +244,7 @@ class _MainMenuViewState extends State<MainMenuView> {
                                     width: 24,
                                   ),
                                   BigMenuButton(
-                                    onPressed: () {},
+                                    onPressed: _navigateToCamera,
                                     label: const Text("Follow-up Photos"),
                                     svg: "assets/images/calandar.svg",
                                   )
