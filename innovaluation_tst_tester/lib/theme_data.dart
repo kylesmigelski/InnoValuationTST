@@ -60,85 +60,82 @@ class GradientContainer extends Container {
   }
 }
 
-//This will be the class for those buttons on the main menu
-// Since we've got 6 of them at least, I think it will be somewhat easier to create
-// these here and then just use that instead of button/container
-class BigMenuButton extends Container {
-  BigMenuButton(
-      {super.key,
-      required this.onPressed,
-      required this.label,
-      super.child,
-      required this.svg})
-      : super();
+class BigMenuButton extends StatelessWidget {
+  final void Function()? onPressed;
+  final String label;
+  final String svg;
 
-  //final Widget? child;
-  //Will also need a variable to add an image here but I'm forgetting how to do that right now
-  void Function()? onPressed;
-  final Text label;
-  String svg;
+  BigMenuButton({
+    Key? key,
+    this.onPressed,
+    required this.label,
+    required this.svg,
+  }) : super(key: key);
 
-  Widget _buildSVGFromString(double minHeigt, double minWidth) {
+  Widget _buildSVGFromString(BuildContext context, double minWidth) {
+    // SVG size is now more responsive to the button width
+    double svgSize = minWidth * 0.2; // Adjust this value as needed
     return SvgPicture.asset(
       svg,
       semanticsLabel: svg.substring("assets/images/".length),
-      height: minHeigt * 0.25,
-      width: minWidth * 0.25,
+      height: svgSize,
+      width: svgSize,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    //So this math works. Will need to come back and do the math for height once we've got
-    //more of the main menu going
-    final minButtonWidth = 0.5 * (MediaQuery.of(context).size.width - 60);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final buttonWidth = 0.5 * (screenWidth - 60); // 50% of screen width minus margins
+    final buttonHeight = MediaQuery.of(context).size.height * 0.2; // Adjust based on your needs
 
-    final buttonHeight = (MediaQuery.of(context).size.height * 0.75 * 0.25) - 60;
-
-    final svgImage = _buildSVGFromString(buttonHeight, minButtonWidth);
-
-    // TODO: implement build
-    return ElevatedButton(
-      //This button style setup is extremely obnoxious. But now I guess I get why
-      //figma made these things containers.
-      style: ElevatedButton.styleFrom(
-        shadowColor: Colors.grey,
-        minimumSize: Size(minButtonWidth, buttonHeight),
-        maximumSize: Size(minButtonWidth, buttonHeight),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10)
-        ),
-        padding: const EdgeInsets.all(9),
-        alignment: Alignment.topLeft,
-        textStyle: TextStyle(
-          fontSize: minButtonWidth * 0.08,
-          color: const Color(0xFF1A1A1A),
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.3
-        )
-      ),
-      onPressed: onPressed,
-      child: Column(
-        children: [
-          Row(
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: buttonWidth,
+          // Remove fixed height to allow content to determine the height
+          padding: const EdgeInsets.all(16), // Padding inside the button
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x16000000),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Make the column's height fit its children
             mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              label,
-              //SizedBox(width: minButtonWidth * 0.75,)
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16, // Adjust font size as needed
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(height: 8), // Space between text and SVG
+              Align(
+                alignment: Alignment.bottomRight,
+                child: _buildSVGFromString(context, buttonWidth),
+              ),
             ],
           ),
-          SizedBox(height: buttonHeight * 0.35,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              //SizedBox(width: minButtonWidth * 0.75,),
-              svgImage,
-              SizedBox(width: 5)
-            ],
-          ),
-        ],
-      )
-
+        ),
+      ),
     );
   }
 }
