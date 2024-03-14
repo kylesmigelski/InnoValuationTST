@@ -4,11 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:camera/camera.dart';
 import 'questionnaire_screen.dart';
-import 'settings_screen.dart'; // Make sure this file exists with a SettingsScreen widget
+import 'settings_screen.dart'; 
 import 'theme_data.dart';
 import 'login_screen.dart';
 import 'photo_button.dart';
-import 'camera_service.dart'; // Assuming this provides InstructionsScreen
+import 'camera_service.dart';
 
 class MainMenuView extends StatefulWidget {
   @override
@@ -59,7 +59,7 @@ class _MainMenuViewState extends State<MainMenuView> {
       ),
     );
   } catch (e) {
-    print(e); // Consider showing an alert or a toast to the user
+    print(e); 
   }
 }
 
@@ -67,12 +67,11 @@ class _MainMenuViewState extends State<MainMenuView> {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen()));
   }
   
-
 List<Widget> _buildScreens() {
   return [
-    buildMainMenuContent(context), // Your main menu content
-    Container(), // Dummy placeholder for the Camera action
-    SettingsScreen(), // Your settings screen
+    buildMainMenuContent(context), 
+    Container(), 
+    SettingsScreen(), 
   ];
 }
 
@@ -101,7 +100,6 @@ List<PersistentBottomNavBarItem> _navBarsItems() {
 
 
   Widget buildMainMenuContent(BuildContext context) {
-    // Your Main Menu content logic here
     return GradientContainer(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -123,18 +121,17 @@ Widget build(BuildContext context) {
       items: _navBarsItems(),
       confineInSafeArea: true,
       backgroundColor: Colors.white,
-      navBarStyle: NavBarStyle.style15, // Choose the nav bar style with this property.
+      navBarStyle: NavBarStyle.style15, 
       decoration: NavBarDecoration(
-    borderRadius: BorderRadius.vertical(top: Radius.circular(20)), // Ensure this is not null
+    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     colorBehindNavBar: Colors.white,
   ),
       onItemSelected: (int index) {
         setState(() {
-          currentIndex = index; // Update your current index on tab change
+          currentIndex = index;
         });
-        // Intercept selection of Camera tab to perform action
-        if (index == 1) { // Assuming Camera is the second item
-          _controller.jumpToTab(0); // Optional: Resets to the first tab, or handle as needed
+        if (index == 1) {
+          _controller.jumpToTab(0); // Resets to the first tab, or handle as needed
           _navigateToCamera();
         }
       },
@@ -228,7 +225,7 @@ Widget build(BuildContext context) {
           Row(
             children: [
               BigMenuButton(
-                onPressed: () {}, // Implement your logic
+                onPressed: () {}, // Implement
                 label: "Log Visit",
                 svg: "assets/images/pencil1.svg",
               ),
@@ -264,10 +261,10 @@ Widget build(BuildContext context) {
                 label: "Help",
                 svg: "assets/images/clipboard1.svg",
               ),
-              // If there's another button, add here
+              // add more buttons here
             ],
           ),
-          // add more Rows of buttons as needed
+          // add more Rows of buttons
         ],
       ),
     );

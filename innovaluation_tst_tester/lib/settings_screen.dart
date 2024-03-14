@@ -12,7 +12,8 @@ class SettingsScreen extends StatelessWidget {
               SizedBox(height: 100),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  // go to home
+                  //Navigator.pop(context);
                 },
                 child: Text('Go back'),
               ),
