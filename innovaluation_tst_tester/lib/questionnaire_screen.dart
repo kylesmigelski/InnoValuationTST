@@ -64,7 +64,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     await FirebaseFirestore.instance
         .collection('users')
         .doc(answersDocumentPath)
-        .set({'username': username, 'Answers': _answerMap}, SetOptions(merge: true));
+        .set({'username': username, 'Answers': _answerMap, 'questionnaireCompleted': true}, SetOptions(merge: true));
 
     Navigator.of(context).pop();
   }

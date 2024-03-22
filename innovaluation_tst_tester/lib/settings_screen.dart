@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -12,10 +13,10 @@ class SettingsScreen extends StatelessWidget {
               SizedBox(height: 100),
               ElevatedButton(
                 onPressed: () {
-                  // go to home
-                  //Navigator.pop(context);
+                  // log out
+                  FirebaseAuth.instance.signOut();
                 },
-                child: Text('Go back'),
+                child: Text('Log out'),
               ),
             ],
           ),

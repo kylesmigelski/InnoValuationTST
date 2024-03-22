@@ -9,6 +9,7 @@ import 'theme_data.dart';
 import 'login_screen.dart';
 import 'photo_button.dart';
 import 'camera_service.dart';
+import 'dynamic_button.dart';
 
 class MainMenuView extends StatefulWidget {
   @override
@@ -19,6 +20,7 @@ class _MainMenuViewState extends State<MainMenuView> {
   int currentIndex = 0; 
   late PersistentTabController _controller;
   CameraDescription? _firstCamera;
+  final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   @override
   void initState() {
@@ -261,7 +263,9 @@ Widget build(BuildContext context) {
                 label: "Help",
                 svg: "assets/images/clipboard1.svg",
               ),
-              // add more buttons here
+              SizedBox(width: 4),
+              // add dynamic button here
+              DynamicProgressButton(userId: userId),
             ],
           ),
           // add more Rows of buttons
