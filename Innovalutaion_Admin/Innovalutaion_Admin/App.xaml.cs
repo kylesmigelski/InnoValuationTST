@@ -1,5 +1,5 @@
 ﻿using Firebase.Auth;
-using Firebase.Auth.Providers;
+//using Firebase.Auth.Providers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,31 +15,51 @@ namespace Innovalutaion_Admin
     public partial class App : Application
     {
         private readonly IHost _host;
+        private FirebaseAuthProvider _provider;
+        //Firebase.Auth.FirebaseAuthConfig _config;
 
         //This dependency injection may not actually be necessary. But it seems like this might be helpful in getting the different
         // firebase services to work on our program
         public App()
         {
+
             //Environment.SetEnvironmentVariable(K.googleAppCredentials, K.firebaseServiceAccountKeyPath);
             _host = Host.CreateDefaultBuilder()
                .ConfigureServices((context, service) =>
                {
                    string firebaseWebAPIKEy = context.Configuration.GetValue<string>("FIREBASE_WEB_API_KEY");
-                   Console.WriteLine(firebaseWebAPIKEy);
-
+                   //Console.WriteLine(firebaseWebAPIKEy);
                    
-                   //service.AddSingleton(new FirebaseAuthProvider(new FirebaseConfig(firebaseWebAPIKEy!));
+                   service.AddSingleton(new FirebaseAuthProvider(new FirebaseConfig(firebaseWebAPIKEy!)));
 
-                   service.AddSingleton<MainWindow>((services) => new MainWindow());
+                   service.AddSingleton<MainWindow>((services) => new MainWindow()) ; 
                }).Build();
         }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            _host.Services.GetRequiredService<MainWindow>();
+            await _host.StartAsync();
+
+            //FirebaseAuthProvider firebaseAuthProvider = _host.Services.GetRequiredService<FirebaseAuthProvider>();
+            _provider = _host.Services.GetRequiredService<FirebaseAuthProvider>();
+            MainWindow = _host.Services.GetRequiredService<MainWindow>();
             MainWindow.Show();
 
+           
+            //firebaseAuthProvider.CreateUserWithEmailAndPasswordAsync("admin@admin.com", "Test1234");
+
             base.OnStartup(e);
+        }
+
+        protected override async void OnExit(ExitEventArgs e)
+        {
+            await _host.StopAsync();
+            base.OnExit(e);
+        }
+
+        public FirebaseAuthProvider firebaseAuthProvider()
+        {
+            return _provider;
         }
 
     }

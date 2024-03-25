@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Net.Mail;
+using Firebase.Auth;
 
 namespace Innovalutaion_Admin.Windows
 {
@@ -22,12 +23,15 @@ namespace Innovalutaion_Admin.Windows
     /// </summary>
     public partial class CreateAccountWindow : Window
     {
+
+        FirebaseAuthProvider _firebaseAuthProvider = ((App) Application.Current).firebaseAuthProvider();
         public CreateAccountWindow()
         {
             InitializeComponent();
+            
         }
 
-        private void submitButton_Click(object sender, RoutedEventArgs e)
+        private async void submitButton_Click(object sender, RoutedEventArgs e)
         {
             if (!(passBlock1.Text.Equals(passBlock2.Text)))
             {
@@ -65,8 +69,32 @@ namespace Innovalutaion_Admin.Windows
             //Should also maybe make a call up to the database here to make sure that the username doesn't already exist.
             //Then here we would probably want to make our call to the database to create our account
             //Might be able to merge that into a single async function call
+            
+            if (await createUser(username, pass, email))
+            {
+                MessageBox.Show(string.Format("Accound {0} successfully created!", username), "Success");
+                //So here we'll want it to then send data up to the cloud firestore database, then pop relevant info back to the login page
+                //in order to then immediately log in so that the user isn't stuck having to enter their information in a second time
+                // like some kind of chump.
 
 
+                //But for now we can just have this one exit
+                Close();
+            }
+
+        }
+
+        private async Task<bool> createUser(string username, string pass, string email)
+        {
+          try
+            {
+                await _firebaseAuthProvider.CreateUserWithEmailAndPasswordAsync(email, pass, username);
+                return true;
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
         }
 
         bool passWordIsValid(string pass)

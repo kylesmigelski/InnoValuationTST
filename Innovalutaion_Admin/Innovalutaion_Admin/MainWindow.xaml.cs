@@ -1,4 +1,5 @@
-﻿using Google.Cloud.Firestore;
+﻿using Firebase.Auth;
+using Google.Cloud.Firestore;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +21,8 @@ namespace Innovalutaion_Admin
         private bool isLoggedIn = false;
         private string errorMessage = "";
 
+        public string b = "banana";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -36,6 +39,8 @@ namespace Innovalutaion_Admin
             {
                 navFrame.Navigate(loginPage);
             }
+
+            
             
         }
 

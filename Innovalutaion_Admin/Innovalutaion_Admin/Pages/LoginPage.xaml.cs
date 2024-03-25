@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using Google.Cloud.Firestore;
+using Firebase.Auth;
 
 namespace Innovalutaion_Admin
 {
@@ -23,6 +24,8 @@ namespace Innovalutaion_Admin
     /// </summary>
     public partial class LoginPage : Page
     {
+        
+
         public LoginPage()
         {
             InitializeComponent();
@@ -42,9 +45,13 @@ namespace Innovalutaion_Admin
 
             } else if (tag == createAccountButton.Content)
             {
+                //Opening a new window seemed like the play here. But we will also need to pop some data back if we're going to try and then
+                // log in with what we've got from CreateAccountWindow.
                 new CreateAccountWindow().Show();
             }
         }
+
+
 
         /*FirestoreDb? connect2FirestoreDB()
         {

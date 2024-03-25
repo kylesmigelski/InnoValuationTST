@@ -47,7 +47,7 @@
           "dependencies": {
             "FirebaseAuthentication.net": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[3.7.2, )"
             },
             "Google.Cloud.Firestore": {
               "target": "Package",

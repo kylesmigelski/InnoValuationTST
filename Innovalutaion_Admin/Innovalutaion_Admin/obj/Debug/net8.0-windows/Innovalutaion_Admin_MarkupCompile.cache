@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-C:\Users\adamk\source\repos\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\
+C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\
 Innovalutaion_Admin
 none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
-C:\Users\adamk\source\repos\Innovalutaion_Admin\Innovalutaion_Admin\App.xaml
+C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\App.xaml
 81263153898
 1-1004457759
 12224169330
-245662227254
+2451467907867
 MainWindow.xaml;Pages\CreatePatientPage.xaml;Pages\ErrorPage.xaml;Pages\HomePage.xaml;Pages\LoginPage.xaml;Pages\NewPatientPage.xaml;Pages\PatientDataPage.xaml;Windows\CreateAccountWindow.xaml;
 
 False

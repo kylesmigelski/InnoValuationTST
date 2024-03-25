@@ -69,7 +69,7 @@ namespace Innovalutaion_Admin {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Innovalutaion_Admin;V1.0.0.0;component/pages/loginpage.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Innovalutaion_Admin;component/pages/loginpage.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Pages\LoginPage.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

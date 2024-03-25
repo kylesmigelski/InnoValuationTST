@@ -101,7 +101,7 @@ namespace Innovalutaion_Admin.Pages {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Innovalutaion_Admin;V1.0.0.0;component/pages/createpatientpage.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Innovalutaion_Admin;component/pages/createpatientpage.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Pages\CreatePatientPage.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
