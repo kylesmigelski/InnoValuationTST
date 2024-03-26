@@ -62,24 +62,21 @@ bool canTakeFollowUpPhoto() {
   return elapsedHours >= 48 && elapsedHours <= 72;
 }
 
-String? getFollowUpPhotoCountdown() {
-  if (!initialPhotoTaken || initialPhotoTimestamp == null) return null;
-  final now = DateTime.now();
-  final initialPhotoTime = initialPhotoTimestamp!.toDate();
-  final elapsedHours = now.difference(initialPhotoTime).inHours;
-
-  if (elapsedHours < 48) {
-    // Not yet eligible for follow-up photo, show countdown to 48-hour mark
-    final hoursRemaining = 48 - elapsedHours;
-    return "$hoursRemaining hours until follow-up photo can be taken";
-  } else if (elapsedHours <= 72) {
-    // Within the 24-hour window for taking a follow-up photo
-    final hoursRemaining = 72 - elapsedHours;
-    return "Eligible for follow-up photo. $hoursRemaining hours remaining";
+  Duration? getInitialPhotoCountdownDuration() {
+    if (!initialPhotoTaken || initialPhotoTimestamp == null) return null;
+    final initialPhotoTime = initialPhotoTimestamp!.toDate();
+    final deadline = initialPhotoTime.add(Duration(hours: 48));
+    return deadline.difference(DateTime.now());
   }
 
-  // Window has passed
-  return "Follow-up photo window has closed";
-}
+  Duration? getFollowUpPhotoCountdownDuration() {
+    if (!initialPhotoTaken || initialPhotoTimestamp == null) return null;
+    final initialPhotoTime = initialPhotoTimestamp!.toDate();
+    final followUpDeadline = initialPhotoTime.add(Duration(hours: 72));
+    if (DateTime.now().isBefore(followUpDeadline)) {
+      return followUpDeadline.difference(DateTime.now());
+    }
+    return null; // Follow-up photo window has closed
+  }
 
 }

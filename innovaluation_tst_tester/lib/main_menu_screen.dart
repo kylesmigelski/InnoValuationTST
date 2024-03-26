@@ -6,8 +6,6 @@ import 'package:camera/camera.dart';
 import 'questionnaire_screen.dart';
 import 'settings_screen.dart'; 
 import 'theme_data.dart';
-import 'login_screen.dart';
-import 'photo_button.dart';
 import 'camera_service.dart';
 import 'dynamic_button.dart';
 
@@ -190,7 +188,7 @@ Widget build(BuildContext context) {
         children: [
           SizedBox(width: MediaQuery.of(context).size.width * 0.06),
           const Text(
-            "Welcome, user",
+            "Welcome, ",
             style: TextStyle(
                 fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2),
           ),
@@ -200,30 +198,53 @@ Widget build(BuildContext context) {
     );
   }
 
-  Widget _buildMenu(BuildContext context) {
-    return ListView(
-      physics:
-          AlwaysScrollableScrollPhysics(), // Adjust the scroll physics as needed
-      children: [
-        _buildMenuButtons(context),
-      ],
-    );
-  }
-
-  Widget _buildMenuButtons(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      margin: const EdgeInsets.only(top: 1),
-      height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const ShapeDecoration(
-        color: Color(0xF9F9F9F9),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-      ),
-      padding: EdgeInsets.only(left: 18, right: 18, top: 45, bottom: 18),
-      child: Column(
+Widget _buildMenu(BuildContext context) {
+  return ListView(
+    physics: AlwaysScrollableScrollPhysics(),
+    children: [
+      Stack(
+        clipBehavior: Clip.none, // Allow elements to overflow the stack
         children: [
+          // Main container for menu buttons - pushed down to make space for the button
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height -60,
+            margin: const EdgeInsets.only(top: 60), // Create space for the button to overlap
+            padding: EdgeInsets.symmetric(horizontal: 18, vertical: 45),
+            decoration: BoxDecoration(
+              color: Color(0xF9F9F9F9),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              children: [
+                // Your menu buttons go here
+                SizedBox(height: 50),
+                _buildMenuButtons(context),
+              ],
+            ),
+          ),
+
+          // Positioned button to overlap the top of the container
+          Positioned(
+            top: 5, // Adjust this to control how much the button overlaps the container
+            left: 0,
+            right: 0,
+            child: Center(
+              child: DynamicProgressButton(userId: userId),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget _buildMenuButtons(BuildContext context) {
+        return Column(
+          children: [
           Row(
             children: [
               BigMenuButton(
@@ -248,30 +269,17 @@ Widget build(BuildContext context) {
                 svg: "assets/images/clipboard2.svg",
               ),
               SizedBox(width: 24),
-              BigMenuButton(
-                onPressed: () => _navigateToCamera(),
-                label: "Follow-up Photos",
-                svg: "assets/images/calandar.svg",
-              ),
+            BigMenuButton(
+                      onPressed: () {},
+                      label: "Help",
+                      svg: "assets/images/clipboard1.svg",
+                    ),
             ],
           ),
           SizedBox(height: 24),
-          Row(
-            children: [
-              BigMenuButton(
-                onPressed: () {},
-                label: "Help",
-                svg: "assets/images/clipboard1.svg",
-              ),
-              SizedBox(width: 4),
-              // add dynamic button here
-              DynamicProgressButton(userId: userId),
-            ],
-          ),
           // add more Rows of buttons
-        ],
-      ),
-    );
+          ],
+      );
   }
 }
 
