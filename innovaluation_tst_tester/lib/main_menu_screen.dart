@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:camera/camera.dart';
 import 'questionnaire_screen.dart';
 import 'settings_screen.dart'; 
@@ -17,24 +18,36 @@ class MainMenuView extends StatefulWidget {
 class _MainMenuViewState extends State<MainMenuView> {
   int currentIndex = 0; 
   late PersistentTabController _controller;
-  CameraDescription? _firstCamera;
+  //CameraDescription? _firstCamera;
   final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-
+  String username = '';
+  
   @override
   void initState() {
     super.initState();
     _controller = PersistentTabController(initialIndex: 0);
-    _getCameraStuff().then((value) {
-      setState(() {
-        _firstCamera = value;
-      });
-    });
+    _fetchUsername();
+    // _getCameraStuff().then((value) {
+    //   setState(() {
+    //     _firstCamera = value;
+    //   });
+    // });
   }
 
-  Future<CameraDescription> _getCameraStuff() async {
-    final cameras = await availableCameras();
-    return cameras.first;
+    Future<void> _fetchUsername() async {
+    if (userId.isNotEmpty) {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      setState(() {
+        // Safely use the 'username' field from the document
+        username = doc.data()?['username'] ?? '';
+      });
+    }
   }
+
+  // Future<CameraDescription> _getCameraStuff() async {
+  //   final cameras = await availableCameras();
+  //   return cameras.first;
+  // }
 
   void _logoutPressed() {
     FirebaseAuth.instance.signOut();
@@ -44,29 +57,25 @@ class _MainMenuViewState extends State<MainMenuView> {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
   }
 
-  Future<void> _navigateToCamera() async {
-  if (_firstCamera == null) {
-    print("Camera not initialized yet.");
-    return;
-  }
-  try {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
+//   Future<void> _navigateToCamera() async {
+//   if (_firstCamera == null) {
+//     print("Camera not initialized yet.");
+//     return;
+//   }
+//   try {
+//     final cameras = await availableCameras();
+//     final firstCamera = cameras.first;
 
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => InstructionsScreen(camera: firstCamera),
-      ),
-    );
-  } catch (e) {
-    print(e); 
-  }
-}
+//     await Navigator.of(context).push(
+//       MaterialPageRoute(
+//         builder: (context) => InstructionsScreen(camera: firstCamera),
+//       ),
+//     );
+//   } catch (e) {
+//     print(e); 
+//   }
+// }
 
-  void _go2SettingsScreen() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen()));
-  }
-  
 List<Widget> _buildScreens() {
   return [
     buildMainMenuContent(context), 
@@ -132,7 +141,7 @@ Widget build(BuildContext context) {
         });
         if (index == 1) {
           _controller.jumpToTab(0); // Resets to the first tab, or handle as needed
-          _navigateToCamera();
+          //_navigateToCamera();
         }
       },
     ),
@@ -182,21 +191,22 @@ Widget build(BuildContext context) {
     );
   }
 
-  Widget _buildWelcomeLabel(BuildContext context) {
-    return Expanded(
-      child: Row(
-        children: [
-          SizedBox(width: MediaQuery.of(context).size.width * 0.06),
-          const Text(
-            "Welcome, ",
-            style: TextStyle(
-                fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2),
-          ),
-          SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
+Widget _buildWelcomeLabel(BuildContext context) {
+  return Expanded(
+    child: Row(
+      children: [
+        SizedBox(width: MediaQuery.of(context).size.width * 0.06),
+        Text(
+          "Welcome, $username!",
+          style: TextStyle(
+              fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2),
+        ),
+        SizedBox(height: 20),
+      ],
+    ),
+  );
+}
+
 
 Widget _buildMenu(BuildContext context) {
   return ListView(
@@ -254,7 +264,7 @@ Widget _buildMenuButtons(BuildContext context) {
               ),
               SizedBox(width: 24),
               BigMenuButton(
-                onPressed: () => _navigateToCamera(),
+                //onPressed: () => _navigateToCamera(),
                 label: "1st Picture",
                 svg: "assets/images/camera.svg",
               ),

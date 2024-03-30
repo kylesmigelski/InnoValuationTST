@@ -4,9 +4,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '/user_state.dart';
 import 'questionnaire_screen.dart';
 import 'package:camera/camera.dart';
+import 'auth_provider.dart';
+import 'package:provider/provider.dart';
 import 'camera_service.dart';
 import 'dart:async';
-
 class DynamicProgressButton extends StatefulWidget {
   final String userId;
 
@@ -18,19 +19,49 @@ class DynamicProgressButton extends StatefulWidget {
 
 class _DynamicProgressButtonState extends State<DynamicProgressButton> {
   CameraDescription? _firstCamera;
- //Timer? _timer;
+  StreamSubscription? _userStateSubscription;
 
   @override
   void initState() {
     super.initState();
-      //_timer = Timer.periodic(Duration(seconds: 1), (Timer t) => setState(() {}));
     _getCamera().then((value) {
       setState(() {
         _firstCamera = value;
       });
     });
+    // Subscribe to the stream.
+    _subscribeToUserState();
+    // Listen to authentication state changes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<AuthenticationProvider>(context, listen: false);
+      // React to user sign-outs.
+      provider.addListener(() {
+        if (provider.currentUser == null) {
+          _unsubscribeFromUserState(); // Cleanup on sign-out.
+        } else {
+          _subscribeToUserState(); // Resubscribe if needed.
+        }
+      });
+    });
   }
 
+  void _subscribeToUserState() {
+    // Ensure we're not creating a new subscription if one already exists.
+    _unsubscribeFromUserState();
+    _userStateSubscription = userStateStream(widget.userId).listen((userState) {
+    });
+  }
+
+  void _unsubscribeFromUserState() {
+    _userStateSubscription?.cancel();
+    _userStateSubscription = null; // Reset the subscription.
+  }
+
+   @override
+  void dispose() {
+    _unsubscribeFromUserState(); 
+    super.dispose();
+  }
 
   void _completeQuestionnaire() {
     // navigate to the questionnaire screen
@@ -38,10 +69,15 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
         .push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
   }
 
-  Future<CameraDescription> _getCamera() async {
-    final cameras = await availableCameras();
-    return cameras.first;
+Future<CameraDescription?> _getCamera() async {
+  final cameras = await availableCameras();
+  // Check if the cameras list is empty, which may be the case in simulators
+  if (cameras.isEmpty) {
+    print("No cameras available.");
+    return null; // Return null or handle as necessary for your app's logic
   }
+  return cameras.first;
+}
 
   void _takePhoto() async {
     if (_firstCamera == null) {
@@ -118,6 +154,7 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
     } else if (userState.initialPhotoTaken &&
         userState.canTakeFollowUpPhoto() &&
         !userState.followUpPhotoTaken) {
+          //userState.updateCanTakeFollowUpPhoto();
       return buildStateButton(
           context: context,
           text: 'Take Follow-up Photo',
@@ -164,6 +201,7 @@ Widget buildStateButton({
 
   return Container(
     height: 120, 
+    width: 400,
     margin: EdgeInsets.symmetric(horizontal: 20), 
     child: ElevatedButton(
       onPressed: onPressed,
@@ -203,7 +241,7 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 10), (timer) {
       if (mounted) {
         setState(() {});
       }
@@ -223,29 +261,43 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
 
 Widget _buildProgressBar(UserState userState) {
   Duration? remainingDuration;
-  if (!userState.initialPhotoTaken || userState.initialPhotoTimestamp == null) {
-   remainingDuration = userState.getInitialPhotoCountdownDuration();
+  final int totalDurationSeconds;
+  bool isLocked = false;
+  // Determine the countdown type and set the remaining duration
+  if (userState.initialPhotoTaken && !userState.canTakeFollowUpPhoto()) {
+    remainingDuration = userState.getLockedCountdownDuration();
+    totalDurationSeconds = 48 * 3600; // Total duration for locked countdown
+    isLocked = true;
   } else {
     remainingDuration = userState.getFollowUpPhotoCountdownDuration();
+    totalDurationSeconds = 24 * 3600; // Total duration for follow-up countdown
   }
+
   if (remainingDuration != null && remainingDuration.inSeconds > 0) {
-    final totalDurationSeconds = 48 * 3600;
     final remainingSeconds = remainingDuration.inSeconds;
-    final progress = 1 - remainingSeconds / totalDurationSeconds;
+    double progress;
+    if (isLocked) {
+      // For locked countdown, progress increases as time passes
+      progress = 1 - remainingSeconds / totalDurationSeconds;
+    } else {
+      // For follow-up countdown, progress decreases as time passes
+      progress = remainingSeconds / totalDurationSeconds;
+    }
 
     return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(10)), 
+      borderRadius: BorderRadius.all(Radius.circular(10)),
       child: SizedBox(
         height: 18, // height of the progress bar
         child: LinearProgressIndicator(
           value: progress,
           backgroundColor: Colors.grey[300],
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+          valueColor: AlwaysStoppedAnimation<Color>(isLocked ? Colors.purple : Colors.green), // Optional: Different color for follow-up countdown
         ),
       ),
     );
   }
   return Container(); // Return an empty container if there's no progress to show
 }
+
 
 }

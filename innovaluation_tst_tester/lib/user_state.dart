@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserState {
   final bool questionnaireCompleted;
@@ -6,6 +7,7 @@ class UserState {
   final Timestamp? initialPhotoTimestamp;
   final bool followUpPhotoTaken;
   final Timestamp? followUpPhotoTimestamp;
+  final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   UserState({
     required this.questionnaireCompleted,
@@ -62,11 +64,27 @@ bool canTakeFollowUpPhoto() {
   return elapsedHours >= 48 && elapsedHours <= 72;
 }
 
-  Duration? getInitialPhotoCountdownDuration() {
+  Future<void> updateCanTakeFollowUpPhoto() async {
+    final bool isEligible = canTakeFollowUpPhoto();
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .update({'canTakeFollowUpPhoto': isEligible});
+  }
+
+  Duration? getLockedCountdownDuration() {
     if (!initialPhotoTaken || initialPhotoTimestamp == null) return null;
     final initialPhotoTime = initialPhotoTimestamp!.toDate();
     final deadline = initialPhotoTime.add(Duration(hours: 48));
     return deadline.difference(DateTime.now());
+  }
+
+  // 24 hours after the initial photo was taken
+  int getFollowUpTimeStamp() {
+    if (!initialPhotoTaken || initialPhotoTimestamp == null) return 0;
+    final initialPhotoTime = initialPhotoTimestamp!.toDate();
+    final followUpDeadline = initialPhotoTime.add(Duration(hours: 24));
+    return followUpDeadline.millisecondsSinceEpoch;
   }
 
   Duration? getFollowUpPhotoCountdownDuration() {

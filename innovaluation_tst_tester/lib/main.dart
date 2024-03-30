@@ -1,21 +1,29 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:innovaluation_tst_tester/splash.dart';
 import 'main_menu_screen.dart';
 import 'login_screen.dart';
+import 'auth_provider.dart';
 
-
-// Database object is ready to be created and used
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  runApp(
+    // Wrap the MyApp widget with ChangeNotifierProvider
+    ChangeNotifierProvider(
+      create: (context) => AuthenticationProvider(),
+      child: MyApp(),
+    ),
+  );
 }
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
@@ -39,6 +47,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Innovaluation TST App',
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         primaryColor: Colors.white,
         brightness: Brightness.light,
@@ -80,17 +89,5 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class _TestWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Innovaluation TST"),
-        backgroundColor: Colors.green,
-      ),
-      body: const Center(
-        child: Text("This is a test widget"),
-      ),
-    );
-  }
-}
+
+
