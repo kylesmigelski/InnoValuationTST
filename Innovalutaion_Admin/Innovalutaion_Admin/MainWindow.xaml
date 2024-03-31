@@ -18,6 +18,7 @@
             <Button x:Name="homeButton" Content="Home" HorizontalAlignment="Center" Margin="10, 35" Width="Auto" Height="Auto" Padding="5" Click="button_Click"/>
             <Button x:Name="createPatientButton" Content="New Patient" HorizontalAlignment="Center" Margin="10,35" Height="Auto" Width="Auto" Padding="5" Click="button_Click"/>
             <Button x:Name="viewPatientsButton" Content="View Patient Data" HorizontalAlignment="Center" Margin="10,35" Height="Auto" Width="Auto" Padding="5" Click="button_Click"/>
+            <Button x:Name="loginLogoutButton" Content="Login" HorizontalAlignment="Center" Margin="10,35" Height="Auto" Width="Auto" Padding="10,5" Click="button_Click"/>
         </StackPanel>
 
         <Frame Grid.Column="1" Name="navFrame" NavigationUIVisibility="Hidden" Loaded="onWindowLoad" Background="#e9ecef"/>

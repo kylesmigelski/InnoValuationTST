@@ -16,6 +16,18 @@ namespace Innovalutaion_Admin
     {
         private readonly IHost _host;
         private FirebaseAuthProvider _provider;
+        private bool _isLoggedIn = false;
+        private FirebaseAuthLink? _currentFirebaseAuthLink = null;
+
+        public FirebaseAuthLink? firebaseAuthLink
+        {
+            get => _currentFirebaseAuthLink; set => _currentFirebaseAuthLink = value;
+        }
+
+        public bool isLoggedIn
+        {
+            get => _isLoggedIn; set => _isLoggedIn = value;
+        }
         //Firebase.Auth.FirebaseAuthConfig _config;
 
         //This dependency injection may not actually be necessary. But it seems like this might be helpful in getting the different

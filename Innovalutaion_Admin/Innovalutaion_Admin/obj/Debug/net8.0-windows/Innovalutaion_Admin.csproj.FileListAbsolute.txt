@@ -91,7 +91,6 @@ C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\ErrorPage.g.cs
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\HomePage.g.cs
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\LoginPage.g.cs
-C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\NewPatientPage.g.cs
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\PatientDataPage.g.cs
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Windows\CreateAccountWindow.g.cs
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\App.g.cs
@@ -161,7 +160,6 @@ C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\ErrorPage.baml
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\HomePage.baml
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\LoginPage.baml
-C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\NewPatientPage.baml
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Pages\PatientDataPage.baml
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Windows\CreateAccountWindow.baml
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Innovalutaion_Admin.g.resources

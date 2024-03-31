@@ -25,6 +25,8 @@ namespace Innovalutaion_Admin.Windows
     {
 
         FirebaseAuthProvider _firebaseAuthProvider = ((App) Application.Current).firebaseAuthProvider();
+        private FirebaseAuthLink? firebaseAuthLink = ((App) Application.Current).firebaseAuthLink;
+        public FirebaseAuthLink? getFirebaseAuthLink() => firebaseAuthLink;
         public CreateAccountWindow()
         {
             InitializeComponent();
@@ -42,7 +44,8 @@ namespace Innovalutaion_Admin.Windows
             string username = usernameTextBlock.Text,
                 pass = passBlock1.Text,
                 tstSiteName = establishmentTextBlock.Text,
-                email = emailTextBox.Text;
+                email = emailTextBox.Text,
+                zip = zipcodeTextBox.Text;
 
             if (username.Length < 6)
             {
@@ -69,13 +72,16 @@ namespace Innovalutaion_Admin.Windows
             //Should also maybe make a call up to the database here to make sure that the username doesn't already exist.
             //Then here we would probably want to make our call to the database to create our account
             //Might be able to merge that into a single async function call
+
+            if (!isValidZipCode(zip))
             
-            if (await createUser(username, pass, email))
+            if (await createUser(username, pass, email, tstSiteName, zip))
             {
                 MessageBox.Show(string.Format("Accound {0} successfully created!", username), "Success");
                 //So here we'll want it to then send data up to the cloud firestore database, then pop relevant info back to the login page
                 //in order to then immediately log in so that the user isn't stuck having to enter their information in a second time
                 // like some kind of chump.
+                ((App)Application.Current).isLoggedIn = true;
 
 
                 //But for now we can just have this one exit
@@ -84,17 +90,48 @@ namespace Innovalutaion_Admin.Windows
 
         }
 
-        private async Task<bool> createUser(string username, string pass, string email)
+        private async Task<bool> createUser(string username, string pass, string email, string tstSiteName, string zip)
         {
           try
             {
                 await _firebaseAuthProvider.CreateUserWithEmailAndPasswordAsync(email, pass, username);
+                //Actually, let's log in first so that we can grab the UUID
+                firebaseAuthLink =  await _firebaseAuthProvider.SignInWithEmailAndPasswordAsync(email, pass);
+                //Now let's add the references to our firebase database in order to classify this is an administrator account and not a patient
+                //accout
+
+                //MessageBox.Show(firebaseAuth.User.LocalId);
+                var uuid = firebaseAuthLink.User.LocalId;
+
+                Google.Cloud.Firestore.DocumentReference adminCollection = K.firestoreDB!.Collection("administrators")
+                    .Document(String.Format("{0} - {1}", username, uuid));
+
+                Dictionary<string, object> adminData = new()
+                {
+                    {"uuid", uuid },
+                    {"username", username},
+                    {"email", email},
+                    {"tstsitename", tstSiteName },
+                    { "zipcode", zip }
+                };
+
+                await adminCollection.SetAsync(adminData);
+                
+               
                 return true;
             } catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 return false;
             }
+        }
+
+        private bool isValidZipCode(string code)
+        {
+            var allowedChars = "0123456789-";
+            if (code.All(x => allowedChars.Contains(x)) && code.Length == 5)
+                return true;
+            return false;
         }
 
         bool passWordIsValid(string pass)
@@ -127,6 +164,8 @@ namespace Innovalutaion_Admin.Windows
             }
             return true;
         }
+
+
         
     }
 }
