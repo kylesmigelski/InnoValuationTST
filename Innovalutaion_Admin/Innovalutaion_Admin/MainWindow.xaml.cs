@@ -57,26 +57,35 @@ namespace Innovalutaion_Admin
 
             //Remember that we will need to wrap this in a statement that checks if user is logged in
 
-            if (tag == homeButton.Content)
+            if (((App)Application.Current).isLoggedIn)
             {
-                //Take us to the home page
-                navFrame.Navigate(new Pages.HomePage(), UriKind.Relative);
-            } else if (tag == createPatientButton.Content)
-            {
-                //this will take us to a page that will allow administrators to create new users for the flutter app
-                navFrame.Navigate(new Pages.CreatePatientPage(), UriKind.Relative);
-            } else if (tag == viewPatientsButton.Content)
-            {
-                //I feel like this one if probably self-explanatory
-                navFrame.Navigate(new Pages.PatientDataPage(), UriKind.Relative);
-            } else if (tag == loginLogoutButton.Content)
+
+                if (tag == homeButton.Content)
+                {
+                    //Take us to the home page
+                    navFrame.Navigate(new Pages.HomePage(), UriKind.Relative);
+                }
+                else if (tag == createPatientButton.Content)
+                {
+                    //this will take us to a page that will allow administrators to create new users for the flutter app
+                    navFrame.Navigate(new Pages.CreatePatientPage(), UriKind.Relative);
+                }
+                else if (tag == viewPatientsButton.Content)
+                {
+                    //I feel like this one if probably self-explanatory
+                    navFrame.Navigate(new Pages.PatientDataPage(), UriKind.Relative);
+                }
+            }
+
+            if (tag == loginLogoutButton.Content)
             {
                 //This will give us login/logout functionality. We'll also have to update the content based on whether the user is logged in or not
                 if (((App)Application.Current).isLoggedIn)
                 {
                     //logout functionality handled here
                     firebaseSignOut();
-                } else
+                }
+                else
                 {
                     //login functionality handled here. Though there shouldn't really be anything that needs to be added here
                 }

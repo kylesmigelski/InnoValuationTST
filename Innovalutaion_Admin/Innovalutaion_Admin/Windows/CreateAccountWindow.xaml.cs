@@ -74,6 +74,10 @@ namespace Innovalutaion_Admin.Windows
             //Might be able to merge that into a single async function call
 
             if (!isValidZipCode(zip))
+            {
+                MessageBox.Show("Invalid Zipcode detected");
+                return;
+            }
             
             if (await createUser(username, pass, email, tstSiteName, zip))
             {
@@ -94,13 +98,13 @@ namespace Innovalutaion_Admin.Windows
         {
           try
             {
-                await _firebaseAuthProvider.CreateUserWithEmailAndPasswordAsync(email, pass, username);
+                await _firebaseAuthProvider.CreateUserWithEmailAndPasswordAsync(email, pass);
                 //Actually, let's log in first so that we can grab the UUID
                 firebaseAuthLink =  await _firebaseAuthProvider.SignInWithEmailAndPasswordAsync(email, pass);
                 //Now let's add the references to our firebase database in order to classify this is an administrator account and not a patient
                 //accout
 
-                //MessageBox.Show(firebaseAuth.User.LocalId);
+                MessageBox.Show(firebaseAuthLink.User.LocalId);
                 var uuid = firebaseAuthLink.User.LocalId;
 
                 Google.Cloud.Firestore.DocumentReference adminCollection = K.firestoreDB!.Collection("administrators")
