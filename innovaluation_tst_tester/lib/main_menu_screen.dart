@@ -27,11 +27,6 @@ class _MainMenuViewState extends State<MainMenuView> {
     super.initState();
     _controller = PersistentTabController(initialIndex: 0);
     _fetchUsername();
-    // _getCameraStuff().then((value) {
-    //   setState(() {
-    //     _firstCamera = value;
-    //   });
-    // });
   }
 
     Future<void> _fetchUsername() async {
@@ -44,11 +39,6 @@ class _MainMenuViewState extends State<MainMenuView> {
     }
   }
 
-  // Future<CameraDescription> _getCameraStuff() async {
-  //   final cameras = await availableCameras();
-  //   return cameras.first;
-  // }
-
   void _logoutPressed() {
     FirebaseAuth.instance.signOut();
   }
@@ -56,25 +46,6 @@ class _MainMenuViewState extends State<MainMenuView> {
   void _questionnairePressed() {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
   }
-
-//   Future<void> _navigateToCamera() async {
-//   if (_firstCamera == null) {
-//     print("Camera not initialized yet.");
-//     return;
-//   }
-//   try {
-//     final cameras = await availableCameras();
-//     final firstCamera = cameras.first;
-
-//     await Navigator.of(context).push(
-//       MaterialPageRoute(
-//         builder: (context) => InstructionsScreen(camera: firstCamera),
-//       ),
-//     );
-//   } catch (e) {
-//     print(e); 
-//   }
-// }
 
 List<Widget> _buildScreens() {
   return [
