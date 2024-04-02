@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -31,6 +32,7 @@ class _MainMenuViewState extends State<MainMenuView> {
 
     Future<void> _fetchUsername() async {
     if (userId.isNotEmpty) {
+      //This is where it first checks for a doc by the name of uuid
       final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
       setState(() {
         // Safely use the 'username' field from the document
@@ -167,10 +169,13 @@ Widget _buildWelcomeLabel(BuildContext context) {
     child: Row(
       children: [
         SizedBox(width: MediaQuery.of(context).size.width * 0.06),
-        Text(
-          "Welcome, $username!",
-          style: TextStyle(
-              fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2),
+        Container(
+          width: MediaQuery.of(context).size.width * 0.86,
+          child: AutoSizeText(
+            "Welcome, $username!",
+            style: TextStyle(
+              fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2,),
+          ),
         ),
         SizedBox(height: 20),
       ],
