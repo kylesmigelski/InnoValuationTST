@@ -2,13 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:camera/camera.dart';
 import 'questionnaire_screen.dart';
 import 'settings_screen.dart'; 
 import 'theme_data.dart';
-import 'login_screen.dart';
-import 'photo_button.dart';
 import 'camera_service.dart';
+import 'dynamic_button.dart';
 
 class MainMenuView extends StatefulWidget {
   @override
@@ -18,23 +18,36 @@ class MainMenuView extends StatefulWidget {
 class _MainMenuViewState extends State<MainMenuView> {
   int currentIndex = 0; 
   late PersistentTabController _controller;
-  CameraDescription? _firstCamera;
-
+  //CameraDescription? _firstCamera;
+  final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  String username = '';
+  
   @override
   void initState() {
     super.initState();
     _controller = PersistentTabController(initialIndex: 0);
-    _getCameraStuff().then((value) {
-      setState(() {
-        _firstCamera = value;
-      });
-    });
+    _fetchUsername();
+    // _getCameraStuff().then((value) {
+    //   setState(() {
+    //     _firstCamera = value;
+    //   });
+    // });
   }
 
-  Future<CameraDescription> _getCameraStuff() async {
-    final cameras = await availableCameras();
-    return cameras.first;
+    Future<void> _fetchUsername() async {
+    if (userId.isNotEmpty) {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      setState(() {
+        // Safely use the 'username' field from the document
+        username = doc.data()?['username'] ?? '';
+      });
+    }
   }
+
+  // Future<CameraDescription> _getCameraStuff() async {
+  //   final cameras = await availableCameras();
+  //   return cameras.first;
+  // }
 
   void _logoutPressed() {
     FirebaseAuth.instance.signOut();
@@ -44,29 +57,25 @@ class _MainMenuViewState extends State<MainMenuView> {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
   }
 
-  Future<void> _navigateToCamera() async {
-  if (_firstCamera == null) {
-    print("Camera not initialized yet.");
-    return;
-  }
-  try {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
+//   Future<void> _navigateToCamera() async {
+//   if (_firstCamera == null) {
+//     print("Camera not initialized yet.");
+//     return;
+//   }
+//   try {
+//     final cameras = await availableCameras();
+//     final firstCamera = cameras.first;
 
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => InstructionsScreen(camera: firstCamera),
-      ),
-    );
-  } catch (e) {
-    print(e); 
-  }
-}
+//     await Navigator.of(context).push(
+//       MaterialPageRoute(
+//         builder: (context) => InstructionsScreen(camera: firstCamera),
+//       ),
+//     );
+//   } catch (e) {
+//     print(e); 
+//   }
+// }
 
-  void _go2SettingsScreen() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen()));
-  }
-  
 List<Widget> _buildScreens() {
   return [
     buildMainMenuContent(context), 
@@ -132,7 +141,7 @@ Widget build(BuildContext context) {
         });
         if (index == 1) {
           _controller.jumpToTab(0); // Resets to the first tab, or handle as needed
-          _navigateToCamera();
+          //_navigateToCamera();
         }
       },
     ),
@@ -182,46 +191,70 @@ Widget build(BuildContext context) {
     );
   }
 
-  Widget _buildWelcomeLabel(BuildContext context) {
-    return Expanded(
-      child: Row(
+Widget _buildWelcomeLabel(BuildContext context) {
+  return Expanded(
+    child: Row(
+      children: [
+        SizedBox(width: MediaQuery.of(context).size.width * 0.06),
+        Text(
+          "Welcome, $username!",
+          style: TextStyle(
+              fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2),
+        ),
+        SizedBox(height: 20),
+      ],
+    ),
+  );
+}
+
+
+Widget _buildMenu(BuildContext context) {
+  return ListView(
+    physics: AlwaysScrollableScrollPhysics(),
+    children: [
+      Stack(
+        clipBehavior: Clip.none, // Allow elements to overflow the stack
         children: [
-          SizedBox(width: MediaQuery.of(context).size.width * 0.06),
-          const Text(
-            "Welcome, user",
-            style: TextStyle(
-                fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2),
+          // Main container for menu buttons - pushed down to make space for the button
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height -60,
+            margin: const EdgeInsets.only(top: 60), // Create space for the button to overlap
+            padding: EdgeInsets.symmetric(horizontal: 18, vertical: 45),
+            decoration: BoxDecoration(
+              color: Color(0xF9F9F9F9),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              children: [
+                // Your menu buttons go here
+                SizedBox(height: 50),
+                _buildMenuButtons(context),
+              ],
+            ),
           ),
-          SizedBox(height: 20),
+
+          // Positioned button to overlap the top of the container
+          Positioned(
+            top: 5, // Adjust this to control how much the button overlaps the container
+            left: 0,
+            right: 0,
+            child: Center(
+              child: DynamicProgressButton(userId: userId),
+            ),
+          ),
         ],
       ),
-    );
-  }
+    ],
+  );
+}
 
-  Widget _buildMenu(BuildContext context) {
-    return ListView(
-      physics:
-          AlwaysScrollableScrollPhysics(), // Adjust the scroll physics as needed
-      children: [
-        _buildMenuButtons(context),
-      ],
-    );
-  }
-
-  Widget _buildMenuButtons(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      margin: const EdgeInsets.only(top: 1),
-      height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const ShapeDecoration(
-        color: Color(0xF9F9F9F9),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-      ),
-      padding: EdgeInsets.only(left: 18, right: 18, top: 45, bottom: 18),
-      child: Column(
-        children: [
+Widget _buildMenuButtons(BuildContext context) {
+        return Column(
+          children: [
           Row(
             children: [
               BigMenuButton(
@@ -231,7 +264,7 @@ Widget build(BuildContext context) {
               ),
               SizedBox(width: 24),
               BigMenuButton(
-                onPressed: () => _navigateToCamera(),
+                //onPressed: () => _navigateToCamera(),
                 label: "1st Picture",
                 svg: "assets/images/camera.svg",
               ),
@@ -246,28 +279,17 @@ Widget build(BuildContext context) {
                 svg: "assets/images/clipboard2.svg",
               ),
               SizedBox(width: 24),
-              BigMenuButton(
-                onPressed: () => _navigateToCamera(),
-                label: "Follow-up Photos",
-                svg: "assets/images/calandar.svg",
-              ),
+            BigMenuButton(
+                      onPressed: () {},
+                      label: "Help",
+                      svg: "assets/images/clipboard1.svg",
+                    ),
             ],
           ),
           SizedBox(height: 24),
-          Row(
-            children: [
-              BigMenuButton(
-                onPressed: () {},
-                label: "Help",
-                svg: "assets/images/clipboard1.svg",
-              ),
-              // add more buttons here
-            ],
-          ),
           // add more Rows of buttons
-        ],
-      ),
-    );
+          ],
+      );
   }
 }
 

@@ -4,9 +4,14 @@ import 'package:flutter/services.dart';
 
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'package:innovaluation_tst_tester/main_menu_screen.dart';
+import 'package:innovaluation_tst_tester/request_notification_permission.dart';
 
 final _firebaseAuth = FirebaseAuth.instance;
 
@@ -42,33 +47,44 @@ class _LoginScreenState extends State<LoginScreen> {
         context, MaterialPageRoute(builder: (context) => MainMenuView()));
   }
 
-  void _loginPressed() async {
+  void setupNotifications() async {
+    NotificationManager manager = NotificationManager();
+    await manager.initToken();  // Use async-await to ensure token is set before proceeding
+}
 
 
-    //This will be good for putting a little load icon-type thing in the login button
+void _loginPressed() async {
+  setState(() {
+    _isAuthenticating = true;
+  });
+
+  if (_passwordString.length < 6) {
+    // Handle the invalid input scenario
     setState(() {
-      _isAuthenticating = true;
+      _isAuthenticating = false;
     });
-
-    //Catch for if the input isn't valid
-    if (_passwordString.length < 6) {
-      //Probably should throw an error message here
-      setState(() {
-        _isAuthenticating = false;
-      });
-      return; //there's nothing left for us to do if this catchment is triggerd so we'll return
-    }
-
-    print("poop");
-
-    try {
-      final userCreds = await _firebaseAuth.signInWithEmailAndPassword(email: "$_usernameString@test.com", password: _passwordString);
-      print(userCreds.toString());
-    } on FirebaseAuthException catch (error) {
-      print(error);
-    }
-    print("Butthole");
+    return;
   }
+
+  try {
+    final userCreds = await _firebaseAuth.signInWithEmailAndPassword(
+      email: "$_usernameString@test.com", 
+      password: _passwordString
+    );
+    
+    if (userCreds.user != null) {
+      setupNotifications();  // Setup notifications only after user is logged in
+      NotificationPermissionRequester(context).requestPermission();
+      _go2MainMenu();  // Navigate to main menu after login
+    }
+  } on FirebaseAuthException catch (error) {
+    print(error);
+    setState(() {
+      _isAuthenticating = false;
+    });
+  }
+}
+
 
   @override
   void initState() {
@@ -220,13 +236,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(fontSize: 16),
                       )),
                   SizedBox(height: 100,),
-                  // LoginMenuButton(
-                  //     onPressed: _go2MainMenu, //This will have to be changed
-                  //     child: const Text(
-                  //       "Sign Up",
-                  //       style: TextStyle(fontSize: 16),
-                  //     )),
-
                 ],
               ),
               Positioned(
@@ -243,3 +252,20 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+class NotificationManager {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> initToken() async {
+    String? token = await _firebaseMessaging.getToken();
+    if (token != null) {
+      await _firestore
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .set({'token': token}, SetOptions(merge: true));
+    }
+  }
+}
+

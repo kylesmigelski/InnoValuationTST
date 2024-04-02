@@ -64,7 +64,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     await FirebaseFirestore.instance
         .collection('users')
         .doc(answersDocumentPath)
-        .set({'username': username, 'Answers': _answerMap}, SetOptions(merge: true));
+        .set({'username': username, 'Answers': _answerMap, 'questionnaireCompleted': true}, SetOptions(merge: true));
 
     Navigator.of(context).pop();
   }
@@ -246,8 +246,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       label: Text(label,
           style: TextStyle(color: isPrimary ? Colors.white : Colors.black)),
       style: ElevatedButton.styleFrom(
-        primary: isPrimary ? Colors.blue : Color(0xFFD9D9D9),
-        onPrimary: Colors.black,
+        backgroundColor: isPrimary ? Colors.blue : Color(0xFFD9D9D9),
+        foregroundColor: Colors.black,
         padding:
             EdgeInsets.symmetric(horizontal: isPrimary ? 50 : 20, vertical: 20),
         shape: StadiumBorder(),

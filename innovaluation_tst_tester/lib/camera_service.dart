@@ -10,6 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'package:geolocator/geolocator.dart';
+import 'user_state.dart';
 
 final _currentUser = FirebaseAuth.instance.currentUser!;
 
@@ -150,7 +151,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   }
 }
 
-// A widget that displays the picture taken by the user.
 class DisplayPictureScreen extends StatelessWidget {
 
   DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
@@ -161,68 +161,58 @@ class DisplayPictureScreen extends StatelessWidget {
   final _currentUserDocRef = FirebaseFirestore.instance.collection("users").
   doc(_currentUser.uid);
 
-
-
   Future<void> _uploadImageToFirestore(Position position) async {
-    // Get the file from the imagePath
+  File file = File(imagePath);
+  DateTime currentDateTime = DateTime.now();
+  final imagePath4Firestore = '${_currentUser.uid} - $currentDateTime';
 
-    File file = File(imagePath);
-    print(imagePath);
-    DateTime currentDateTime = DateTime.now();
-    final imagePath4Firestore = '${_currentUser.uid} - ${currentDateTime}';
+  firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+      .ref()
+      .child('images')
+      .child(imagePath4Firestore);
 
-    //file.rename(newPath) = imagePath4Firestore;
+  await ref.putFile(file);
+  String downloadURL = await ref.getDownloadURL();
 
-    // Create a reference to the Firebase storage location
-    //So this statement is actually what sets the path that we'll upload the image to
-    firebase_storage.Reference ref = await firebase_storage.FirebaseStorage.instance
-        .ref()
-        .child('images')
-        .child(imagePath4Firestore);
+  _cloudFirestoreImageFolderLocation.doc(imagePath4Firestore).set({
+    'url': downloadURL,
+    'createdAt': FieldValue.serverTimestamp(),
+    'latitude': position.latitude,
+    'longitude': position.longitude,
+  });
 
-    // Upload the file to Firebase storage
-    // then this is us actually putting the image up in there
-    await ref.putFile(file);
+  DocumentSnapshot userDocSnapshot = await _currentUserDocRef.get();
+  UserState currentUserState = UserState.fromFirestore(userDocSnapshot);
 
-    // Get the download URL for the file
-    String downloadURL = await ref.getDownloadURL();
+  bool isInitialPhoto = currentUserState.initialPhotoTaken == false;
+  
+  Timestamp photoTimestamp = Timestamp.fromDate(currentDateTime);
 
-    // Add the download URL and location to Firestore
-    //This way we can actually set the names for our imagees. Will make it easy to
-    //comb through when we inevitably have to do that.
-    print(imagePath4Firestore);
-    _cloudFirestoreImageFolderLocation.doc(imagePath4Firestore).set({
-      'url': downloadURL,
-      'createdAt': FieldValue.serverTimestamp(),
-      'latitude': position.latitude,
-      'longitude': position.longitude
-    });
+  currentUserState = currentUserState.copyWith(
+    initialPhotoTaken: isInitialPhoto ? true : currentUserState.initialPhotoTaken,
+    initialPhotoTimestamp: isInitialPhoto ? photoTimestamp : currentUserState.initialPhotoTimestamp,
+    followUpPhotoTaken: !isInitialPhoto ? true : currentUserState.followUpPhotoTaken,
+    followUpPhotoTimestamp: !isInitialPhoto ? photoTimestamp : currentUserState.followUpPhotoTimestamp,
+  );
 
-    List<String>? snapshotPathList = null;
+  // Updating the user document with the new state
+  await _currentUserDocRef.update(currentUserState.toJson());
 
-    print("Hot to here");
+    List<String> snapshotPathList;
 
-    await _currentUserDocRef.get().then(
-        (DocumentSnapshot doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          print(data);
-          snapshotPathList = (data.containsKey('photosList')) ? (data['photosList'] as List)
-              .map((e) => e as String).toList() : null;
-        }
-    );
+    final data = userDocSnapshot.data() as Map<String, dynamic>?;
 
-    if (snapshotPathList == null) {
-      print("No photosList");
-      snapshotPathList = [downloadURL];
+    if (data != null && data.containsKey('photosList')) {
+      snapshotPathList = List<String>.from(data['photosList']);
     } else {
-      snapshotPathList!.add(downloadURL);
-      print(snapshotPathList!);
+      snapshotPathList = [];
     }
 
-    print("This got here");
 
-    _currentUserDocRef.update({'photosList' : snapshotPathList});
-  }
+  snapshotPathList.add(downloadURL);
+  
+  await _currentUserDocRef.update({'photosList': snapshotPathList});
+}
 
   /// Determine the current position of the device.
   ///
