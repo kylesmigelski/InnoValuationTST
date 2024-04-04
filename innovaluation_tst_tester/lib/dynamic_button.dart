@@ -135,7 +135,7 @@ Map<String, String> _dialogContent(UserState userState) {
       'title': 'Capture your test site photo',
       'message': 'Let\'s take an initial photo of your test site. This step is crucial for monitoring the site\'s reaction accurately over time.'
     };
-  } else if (_isPhotoLocked(userState)) {
+  } else if (_isPhotoLocked(userState) && !userState.hasFollowUpPhotoDeadlinePassed()) {
     String message = 'The next photo can be taken 48 hours from the initial capture. Check back in [time remaining] to take your follow-up photo. Thank you for your patience!';
     if (timeRemaining != null) {
       String formattedTimeRemaining = '${timeRemaining.inHours} hours and ${timeRemaining.inMinutes.remainder(60)} minutes';
@@ -149,6 +149,11 @@ Map<String, String> _dialogContent(UserState userState) {
     return {
       'title': 'Final Follow-Up Photo',
       'message': 'This is the time for your final follow-up photo. Your submission will be reviewed by our medical experts to ensure the most accurate assessment. Click here to take and upload your photo.'
+    };
+  } else if (userState.hasFollowUpPhotoDeadlinePassed()) {
+    return {
+      'title': 'Missed Window',
+      'message': 'You have missed the window to take your follow-up photo. Please contact your healthcare provider for further instructions.'
     };
   } else {
     return {
@@ -197,7 +202,7 @@ Map<String, String> _dialogContent(UserState userState) {
           text: 'Complete Questionnaire',
           iconPath: "assets/images/clipboard2.svg",
           color: const Color.fromARGB(255, 188, 188, 188),
-          isLocked: false,
+          hasProgressBar: false,
           userState: userState,
           onPressed: _completeQuestionnaire,
           tooltipMessage: "Complete the questionnaire to proceed.");
@@ -207,16 +212,16 @@ Map<String, String> _dialogContent(UserState userState) {
           text: 'Take Initial Photo',
           iconPath: "assets/images/camera.svg",
           color: Color(0xFF2E1C56),
-          isLocked: false,
+          hasProgressBar: false,
           userState: userState,
           onPressed: _takePhoto);
-    } else if (_isPhotoLocked(userState)) {
+    } else if (_isPhotoLocked(userState) && !userState.hasFollowUpPhotoDeadlinePassed()) {
       return buildStateButton(
           context: context,
           text: 'Photo Locked',
           iconPath: "assets/images/camera.svg",
           color: Color(0xFF949494),
-          isLocked: true,
+          hasProgressBar: true,
           userState: userState,
           onPressed: null);
     } else if (userState.canTakeFollowUpPhoto()) {
@@ -225,7 +230,7 @@ Map<String, String> _dialogContent(UserState userState) {
           text: 'Take Follow-up Photo',
           iconPath: "assets/images/camera.svg",
           color: Color(0xFF2E1C56),
-          isLocked: true,
+          hasProgressBar: true,
           userState: userState,
           onPressed: _takePhoto);
     } else if (userState.initialPhotoTaken && userState.followUpPhotoTaken) {
@@ -234,7 +239,17 @@ Map<String, String> _dialogContent(UserState userState) {
           text: 'All tasks completed',
           iconPath: "assets/images/clipboard2.svg",
           color: const Color.fromARGB(255, 188, 188, 188),
-          isLocked: false,
+          hasProgressBar: false,
+          userState: userState,
+          onPressed: null);
+    // user misses window
+    } else if (userState.hasFollowUpPhotoDeadlinePassed()) {
+      return buildStateButton(
+          context: context,
+          text: 'Missed Window',
+          iconPath: "assets/images/camera.svg",
+          color: const Color.fromARGB(255, 188, 188, 188),
+          hasProgressBar: false,
           userState: userState,
           onPressed: null);
     } else {
@@ -249,7 +264,7 @@ Widget buildStateButton({
   required String iconPath,
   required Color color,
   VoidCallback? onPressed,
-  required bool isLocked,
+  required bool hasProgressBar,
   required UserState userState,
   String? tooltipMessage,
 }) {
@@ -283,8 +298,8 @@ Widget buildStateButton({
             SvgPicture.asset(iconPath, height: 24, width: 24),
             SizedBox(width: 8),
             Text(text, style: TextStyle(fontSize: 20, color: Colors.white)),
-            if (isLocked) SizedBox(height: 8),
-            if (isLocked)
+            if (hasProgressBar) SizedBox(height: 8),
+            if (hasProgressBar)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: CountdownProgressBar(userState: userState),
@@ -336,12 +351,12 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
   Widget _buildProgressBar(UserState userState) {
     Duration? remainingDuration;
     final int totalDurationSeconds;
-    bool isLocked = false;
+    bool hasProgressBar = false;
     // Determine the countdown type and set the remaining duration
     if (userState.initialPhotoTaken && !userState.canTakeFollowUpPhoto()) {
       remainingDuration = userState.getLockedCountdownDuration();
       totalDurationSeconds = 48 * 3600; // Total duration for locked countdown
-      isLocked = true;
+      hasProgressBar = true;
     } else {
       remainingDuration = userState.getFollowUpPhotoCountdownDuration();
       totalDurationSeconds =
@@ -351,7 +366,7 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
     if (remainingDuration != null && remainingDuration.inSeconds > 0) {
       final remainingSeconds = remainingDuration.inSeconds;
       double progress;
-      if (isLocked) {
+      if (hasProgressBar) {
         // For locked countdown, progress increases as time passes
         progress = 1 - remainingSeconds / totalDurationSeconds;
       } else {
@@ -366,7 +381,7 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: Colors.grey[300],
-            valueColor: AlwaysStoppedAnimation<Color>(isLocked
+            valueColor: AlwaysStoppedAnimation<Color>(hasProgressBar
                 ? Colors.purple
                 : Colors
                     .green), // Optional: Different color for follow-up countdown

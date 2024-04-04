@@ -97,4 +97,11 @@ bool canTakeFollowUpPhoto() {
     return null; // Follow-up photo window has closed
   }
 
+  bool hasFollowUpPhotoDeadlinePassed() {
+    if (!initialPhotoTaken || initialPhotoTimestamp == null) return false;
+    final initialPhotoTime = initialPhotoTimestamp!.toDate();
+    final followUpDeadline = initialPhotoTime.add(Duration(hours: 72));
+    return DateTime.now().isAfter(followUpDeadline);
+  }
+
 }
