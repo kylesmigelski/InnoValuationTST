@@ -147,7 +147,7 @@ Map<String, String> _dialogContent(UserState userState) {
     };
   } else if (userState.canTakeFollowUpPhoto()) {
     return {
-      'title': 'Follow-up Photo Time',
+      'title': 'Final Follow-Up Photo',
       'message': 'This is the time for your final follow-up photo. Your submission will be reviewed by our medical experts to ensure the most accurate assessment. Click here to take and upload your photo.'
     };
   } else {
@@ -377,3 +377,14 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
     return Container(); // Return an empty container if there's no progress to show
   }
 }
+
+// TODO
+// ios notification
+// dynamic button design
+// settings screen
+// nav bar camera button 
+// home screen buttons/pages 
+// log in screen design tweaks (resize, hidden password, login button text)
+// notification button functionality
+// more push notifications. Questionnaire reminder, photo reminder, missed window
+// user flow of dynamic button. register face -> questionnaire -> take photo -> follow up photo -> results. Missed window?

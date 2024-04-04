@@ -23,7 +23,4 @@ Future<void> signOut() async {
     MaterialPageRoute(builder: (context) => LoginScreen()),
     (_) => false,
   );
-}
-
-
-  }
+}}
