@@ -120,11 +120,9 @@ Widget build(BuildContext context) {
         setState(() {
           currentIndex = index;
         });
-        if (index == 1 && Provider.of<CameraStateProvider>(context, listen: false).isCameraActive) {
+        if (index == 1) {
           _controller.jumpToTab(0); // Resets to the first tab
           _takePhoto();
-        } else {
-          _controller.jumpToTab(0);
         }
       },
     ),
