@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Innovalutaion_Admin", "Innovalutaion_Admin\Innovalutaion_Admin.csproj", "{7328B1B7-5A70-4809-BD15-4B4B356B6C57}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7328B1B7-5A70-4809-BD15-4B4B356B6C57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7328B1B7-5A70-4809-BD15-4B4B356B6C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7328B1B7-5A70-4809-BD15-4B4B356B6C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7328B1B7-5A70-4809-BD15-4B4B356B6C57}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8A6DB678-108F-46C1-AA6D-1BD039D59538}
+	EndGlobalSection
+EndGlobal

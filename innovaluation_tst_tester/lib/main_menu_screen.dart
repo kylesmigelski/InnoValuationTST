@@ -1,6 +1,8 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:innovaluation_tst_tester/roc_components.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:camera/camera.dart';
@@ -17,6 +19,7 @@ import 'request_notification_permission.dart';
 class MainMenuView extends StatefulWidget {
   @override
   _MainMenuViewState createState() => _MainMenuViewState();
+
 }
 
 class _MainMenuViewState extends State<MainMenuView> {
@@ -34,10 +37,8 @@ class _MainMenuViewState extends State<MainMenuView> {
 
   Future<void> _fetchUsername() async {
     if (userId.isNotEmpty) {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
+      //This is where it first checks for a doc by the name of uuid
+      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
       setState(() {
         // Safely use the 'username' field from the document
         username = doc.data()?['username'] ?? '';
@@ -63,13 +64,17 @@ class _MainMenuViewState extends State<MainMenuView> {
     }
   }
 
-  List<Widget> _buildScreens() {
-    return [
-      buildMainMenuContent(context),
-      Container(),
-      SettingsScreen(),
-    ];
+  void _faceVerifyPressed() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ROCEnrollWebViewer()));
   }
+
+List<Widget> _buildScreens() {
+  return [
+    buildMainMenuContent(context), 
+    Container(), 
+    SettingsScreen(), 
+  ];
+}
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
     final isCameraActive =
@@ -184,51 +189,54 @@ class _MainMenuViewState extends State<MainMenuView> {
     );
   }
 
-  Widget _buildWelcomeLabel(BuildContext context) {
-    return Expanded(
-      child: Row(
-        children: [
-          SizedBox(width: MediaQuery.of(context).size.width * 0.06),
-          Text(
+Widget _buildWelcomeLabel(BuildContext context) {
+  return Expanded(
+    child: Row(
+      children: [
+        SizedBox(width: MediaQuery.of(context).size.width * 0.06),
+        Container(
+          width: MediaQuery.of(context).size.width * 0.86,
+          child: AutoSizeText(
             "Welcome, $username!",
             style: TextStyle(
-                fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2),
+              fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2,),
           ),
-          SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
+        ),
+        SizedBox(height: 20),
+      ],
+    ),
+  );
+}
 
-  Widget _buildMenu(BuildContext context) {
-    return ListView(
-      physics: NeverScrollableScrollPhysics(),
-      children: [
-        Stack(
-          clipBehavior: Clip.none, // Allow elements to overflow the stack
-          children: [
-            // Main container for menu buttons - pushed down to make space for the button
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height - 60,
-              margin: const EdgeInsets.only(
-                  top: 60), // Create space for the button to overlap
-              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 45),
-              decoration: BoxDecoration(
-                color: Color(0xF9F9F9F9),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                children: [
-                  // Your menu buttons go here
-                  SizedBox(height: 50),
-                  _buildMenuButtons(context),
-                ],
+
+Widget _buildMenu(BuildContext context) {
+  return ListView(
+    physics: AlwaysScrollableScrollPhysics(),
+    children: [
+      Stack(
+        clipBehavior: Clip.none, // Allow elements to overflow the stack
+        children: [
+          // Main container for menu buttons - pushed down to make space for the button
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.75,
+            margin: const EdgeInsets.only(top: 50), // Create space for the button to overlap
+            padding: EdgeInsets.symmetric(horizontal: 18, vertical: 45),
+            decoration: BoxDecoration(
+              color: Color(0xF9F9F9F9),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
               ),
             ),
+            child: Column(
+              children: [
+                // Your menu buttons go here
+                SizedBox(height: 50),
+                _buildMenuButtons(context),
+              ],
+            ),
+          ),
 
             // Positioned button to overlap the top of the container
             Positioned(
@@ -274,16 +282,25 @@ class _MainMenuViewState extends State<MainMenuView> {
             ),
             SizedBox(width: 24),
             BigMenuButton(
-              onPressed: () {},
-              label: "Help",
-              svg: "assets/images/clipboard1.svg",
-            ),
+                      onPressed: () {},
+                      label: "Help",
+                      svg: "assets/images/clipboard1.svg",
+                    ),
+            ],
+          ),
+          SizedBox(height: 24),
+          Row(
+            children: [
+              BigMenuButton(
+                onPressed: _faceVerifyPressed,
+                label: "Verify Face",
+                svg: "assets/images/clipboard1.svg"
+              )
+            ],
+          )
+          // add more Rows of buttons
           ],
-        ),
-        SizedBox(height: 24),
-        // add more Rows of buttons
-      ],
-    );
+      );
   }
 }
 

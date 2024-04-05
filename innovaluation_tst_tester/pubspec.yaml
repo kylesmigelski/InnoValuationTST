@@ -49,9 +49,11 @@ dependencies:
   geolocator: ^11.0.0
   persistent_bottom_nav_bar: ^5.0.2
   firebase_messaging: ^14.7.19
-  flutter_local_notifications: ^17.0.0
+  ## flutter_local_notifications: ^17.0.0
   cloud_functions: ^4.6.8
   provider: ^6.1.2
+  webview_flutter: ^4.2.0
+  flutter_inappwebview: ^5.8.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

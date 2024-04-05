@@ -57,6 +57,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       _answerMap[_questionList[i]] = _answers[i];
     }
 
+    //here's another place where we use just UID
     final answersDocumentPath = "${_authenticatedUser.uid}";
     final username = _authenticatedUser.email!
         .substring(0, _authenticatedUser.email!.indexOf('@'));
