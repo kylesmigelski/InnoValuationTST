@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:innovaluation_tst_tester/login_screen.dart';
-import 'main.dart';
+import '../main.dart';
 
   class AuthenticationProvider extends ChangeNotifier {
     final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;

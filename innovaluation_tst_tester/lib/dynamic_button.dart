@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,6 +7,8 @@ import 'questionnaire_screen.dart';
 import 'package:camera/camera.dart';
 import 'camera_service.dart';
 import 'dart:async';
+import 'package:provider/provider.dart';
+import 'providers/camera_state_provider.dart';
 
 class DynamicProgressButton extends StatefulWidget {
   final String userId;
@@ -47,8 +50,9 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
       builder: (context, snapshot) {
         // Deferred showDialog to postFrameCallback to avoid setState errors during build.
         if (snapshot.hasData) {
-          WidgetsBinding.instance
-              .addPostFrameCallback((_) => _showDialogIfNeeded(snapshot.data!));
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showDialogIfNeeded(snapshot.data!);
+          });
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -79,6 +83,7 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
         _lastDialogShownForState != currentState) {
       _isDialogShown = true;
       _lastDialogShownForState = currentState; // Update the last known state
+      _updateProvider(userState); // Update the camera provider
 
       await showDialog(
         context: context,
@@ -120,6 +125,22 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
     return userState.initialPhotoTaken &&
         !userState.canTakeFollowUpPhoto() &&
         !userState.followUpPhotoTaken;
+  }
+
+  Future<void> _updateProvider(UserState userState) async {
+    if (!userState.questionnaireCompleted) {
+      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive = false;
+    } else if (!userState.initialPhotoTaken) {
+      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive = true;
+    } else if (_isPhotoLocked(userState) && !userState.hasFollowUpPhotoDeadlinePassed()) {
+      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive = false;
+    } else if (userState.canTakeFollowUpPhoto()) {
+      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive = true;
+    } else if (userState.hasFollowUpPhotoDeadlinePassed()) {
+      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive = false;
+    } else {
+      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive = false;
+    }
   }
 
 Map<String, String> _dialogContent(UserState userState) {
@@ -288,7 +309,7 @@ Widget buildStateButton({
     width: 400,
     margin: EdgeInsets.symmetric(horizontal: 20),
     child: Tooltip(
-      message: tooltipMessage ?? "This is a button",
+      message: tooltipMessage ?? "Unknown",
       child: ElevatedButton(
         onPressed: onPressed,
         style: buttonStyle,
@@ -392,6 +413,8 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
     return Container(); // Return an empty container if there's no progress to show
   }
 }
+
+
 
 // TODO
 // ios notification

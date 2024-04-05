@@ -9,6 +9,9 @@ import 'settings_screen.dart';
 import 'theme_data.dart';
 import 'camera_service.dart';
 import 'dynamic_button.dart';
+import 'user_state.dart';
+import 'package:provider/provider.dart';
+import 'providers/camera_state_provider.dart';
 
 class MainMenuView extends StatefulWidget {
   @override
@@ -39,10 +42,6 @@ class _MainMenuViewState extends State<MainMenuView> {
     }
   }
 
-  void _logoutPressed() {
-    FirebaseAuth.instance.signOut();
-  }
-
   void _questionnairePressed() {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
   }
@@ -56,6 +55,7 @@ List<Widget> _buildScreens() {
 }
 
 List<PersistentBottomNavBarItem> _navBarsItems() {
+  final isCameraActive = Provider.of<CameraStateProvider>(context).isCameraActive;
   return [
     PersistentBottomNavBarItem(
       icon: CustomNavBarIcon(asset: 'assets/images/home.svg', isActive: currentIndex == 0),
@@ -65,8 +65,7 @@ List<PersistentBottomNavBarItem> _navBarsItems() {
     ),
     PersistentBottomNavBarItem(
       icon: SvgPicture.asset('assets/images/camera.svg', height: 25, color: Colors.white),
-      //title: ("Camera"),
-      activeColorPrimary: Color.fromARGB(255, 43, 25, 83),
+      activeColorPrimary: isCameraActive ? Color(0xFF2E1C56) : Colors.grey,
       inactiveColorPrimary: Colors.grey,
     ),
     PersistentBottomNavBarItem(
@@ -278,4 +277,19 @@ class CustomNavBarIcon extends StatelessWidget {
     );
   }
 }
+
+// class UserStateManager {
+//   final String userId;
+
+//   UserStateManager({required this.userId});
+
+//   Stream<UserState> get userStateStream {
+//     return FirebaseFirestore.instance
+//         .collection('users')
+//         .doc(userId)
+//         .snapshots()
+//         .map((snapshot) => UserState.fromFirestore(snapshot));
+//   }
+// }
+
 

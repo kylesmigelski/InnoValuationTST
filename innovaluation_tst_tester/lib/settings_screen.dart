@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'package:provider/provider.dart';
-import 'package:innovaluation_tst_tester/auth_provider.dart';
+import 'package:innovaluation_tst_tester/providers/auth_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
