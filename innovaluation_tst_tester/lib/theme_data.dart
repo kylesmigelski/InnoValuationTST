@@ -92,9 +92,9 @@ class BigMenuButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Color(0x16000000),
-                blurRadius: 8,
-                offset: Offset(0, 2),
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 10,
+                offset: Offset(0, 3),
                 spreadRadius: 0,
               ),
             ],
