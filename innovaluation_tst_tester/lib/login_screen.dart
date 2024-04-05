@@ -85,7 +85,6 @@ void _loginPressed() async {
   }
 }
 
-
   @override
   void initState() {
     super.initState();
@@ -232,7 +231,7 @@ void _loginPressed() async {
                   LoginMenuButton(
                       onPressed: _loginPressed, //This will have to be changed
                       child: const Text(
-                        "Check for TST number",
+                        "Log in",
                         style: TextStyle(fontSize: 16),
                       )),
                   SizedBox(height: 100,),

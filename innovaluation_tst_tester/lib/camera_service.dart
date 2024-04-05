@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,106 +10,84 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'package:geolocator/geolocator.dart';
 import 'user_state.dart';
+import 'package:provider/provider.dart';
+import 'providers/camera_state_provider.dart';
 
 final _currentUser = FirebaseAuth.instance.currentUser!;
 
 class InstructionsScreen extends StatelessWidget {
-  final CameraDescription camera;
-
-  const InstructionsScreen({Key? key, required this.camera}) : super(key: key);
+  const InstructionsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Photo Instructions')),
+      appBar: AppBar(title: const Text('Photo Instructions')),
       body: GradientContainer(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
               const Padding(
                 padding: EdgeInsets.all(25.0),
                 child: Text(
                   'To take a photo, press the camera button. Make sure the subject is well-lit and in focus.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 22,
-                      //color: Color(0xFF5D4493)
-                  ),
+                  style: TextStyle(fontSize: 22),
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => TakePictureScreen(camera: camera),
+                    builder: (context) => const TakePictureScreen(),
                   ));
                 },
-                child: Text('Open Camera'),
+                child: const Text('Open Camera'),
               ),
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }
 
-class TakePictureScreen extends StatefulWidget {
-  final CameraDescription camera;
 
-  const TakePictureScreen({
-    Key? key,
-    required this.camera,
-  }) : super(key: key);
+class TakePictureScreen extends StatefulWidget {
+  const TakePictureScreen({Key? key}) : super(key: key);
 
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
 }
 
 class TakePictureScreenState extends State<TakePictureScreen> {
-  late CameraController _controller;
   late Future<void> _initializeControllerFuture;
 
   @override
   void initState() {
     super.initState();
-    // To display the current output from the Camera,
-    // create a CameraController.
-    _controller = CameraController(
-      // Get a specific camera from the list of available cameras.
-      widget.camera,
-      // Define the resolution to use.
-      ResolutionPreset.medium,
-    );
-
-    // Next, initialize the controller. This returns a Future.
-    _initializeControllerFuture = _controller.initialize();
-  }
-
-  @override
-  void dispose() {
-    // Dispose of the controller when the widget is disposed.
-    _controller.dispose();
-    super.dispose();
+    // Initialize camera in provider if not already done
+    final cameraProvider = Provider.of<CameraStateProvider>(context, listen: false);
+    if (cameraProvider.controller == null) {
+      _initializeControllerFuture = cameraProvider.initializeCamera();
+    } else {
+      _initializeControllerFuture = Future.value();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cameraProvider = Provider.of<CameraStateProvider>(context, listen: true);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Take a picture')),
-      // You must wait until the controller is initialized before displaying the
-      // camera preview. Use a FutureBuilder to display a loading spinner until the
-      // controller has finished initializing.
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // If the Future is complete, display the preview.
-            return CameraPreview(_controller);
+          if (snapshot.connectionState == ConnectionState.done && cameraProvider.controller != null) {
+            return CameraPreview(cameraProvider.controller!);
           } else {
-            // Otherwise, display a loading indicator.
             return const Center(child: CircularProgressIndicator());
           }
         },
@@ -126,7 +103,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
             // Attempt to take a picture and get the file `image`
             // where it was saved.
-            final image = await _controller.takePicture();
+            final image = await cameraProvider.controller!.takePicture();
 
             if (!mounted) return;
 
@@ -331,26 +308,3 @@ class DisplayPictureScreen extends StatelessWidget {
   }
 }
 
-//Pretty sure that this is a dead/unused method. So I'm stuffing it down here so
-// I don't have to look at it
-Future<void> main() async {
-  // Ensure that plugin services are initialized so that `availableCameras()`
-  // can be called before `runApp()`
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Obtain a list of the available cameras on the device.
-  final cameras = await availableCameras();
-
-  // Get a specific camera from the list of available cameras.
-  final firstCamera = cameras.first;
-
-  runApp(
-    MaterialApp(
-      theme: ThemeData.dark(),
-      home: InstructionsScreen(
-        // Pass the appropriate camera to the TakePictureScreen widget.
-        camera: firstCamera,
-      ),
-    ),
-  );
-}

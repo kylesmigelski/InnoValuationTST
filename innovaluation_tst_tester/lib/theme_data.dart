@@ -18,25 +18,13 @@ final Widget cameraSVG = SvgPicture.asset(
   semanticsLabel: 'camera',
 );
 
-//parameters are a little weird here. But basically we've got a default for size,
-//but if you want size to be something different when calling this function,
-// you would have to write "size: x" where x is an int
 ButtonStyle bigButtonStyle1(BuildContext context, {int size = 22}) {
   return ElevatedButton.styleFrom(
     side: BorderSide(width: 1),
     minimumSize: const Size(250, 40),
     //backgroundColor
   );
-} //we might axe this function here since it isn't really acheiving its job now
-//although the specs are somewhat close to what we'll probably want to use for the login
-// buttons, it might be worth leaving in for the time being.
-
-//Since there's not really a good way to incorporate gradient backgrounds into
-//the theme data of Material App, I just made a class that extends container
-// for ease-of-use in setting up that gradient background. Probably won't have to
-// use this more than 2 or 3 times but it will make for ease-of-use in the places
-// that we do use it. So yeah, just call this as the first child in the appbar
-// and then call our actual components as the child of GradientContainer
+} 
 class GradientContainer extends Container {
   GradientContainer({super.key, super.child}) : super();
 
@@ -104,9 +92,9 @@ class BigMenuButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Color(0x16000000),
-                blurRadius: 8,
-                offset: Offset(0, 2),
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 10,
+                offset: Offset(0, 3),
                 spreadRadius: 0,
               ),
             ],
