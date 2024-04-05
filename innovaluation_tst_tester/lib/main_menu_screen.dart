@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:innovaluation_tst_tester/roc_components.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:camera/camera.dart';
@@ -14,6 +15,7 @@ import 'dynamic_button.dart';
 class MainMenuView extends StatefulWidget {
   @override
   _MainMenuViewState createState() => _MainMenuViewState();
+
 }
 
 class _MainMenuViewState extends State<MainMenuView> {
@@ -47,6 +49,10 @@ class _MainMenuViewState extends State<MainMenuView> {
 
   void _questionnairePressed() {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
+  }
+
+  void _faceVerifyPressed() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ROCEnrollWebViewer()));
   }
 
 List<Widget> _buildScreens() {
@@ -194,8 +200,8 @@ Widget _buildMenu(BuildContext context) {
           // Main container for menu buttons - pushed down to make space for the button
           Container(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height -60,
-            margin: const EdgeInsets.only(top: 60), // Create space for the button to overlap
+            height: MediaQuery.of(context).size.height * 0.75,
+            margin: const EdgeInsets.only(top: 50), // Create space for the button to overlap
             padding: EdgeInsets.symmetric(horizontal: 18, vertical: 45),
             decoration: BoxDecoration(
               color: Color(0xF9F9F9F9),
@@ -263,6 +269,15 @@ Widget _buildMenuButtons(BuildContext context) {
             ],
           ),
           SizedBox(height: 24),
+          Row(
+            children: [
+              BigMenuButton(
+                onPressed: _faceVerifyPressed,
+                label: "Verify Face",
+                svg: "assets/images/clipboard1.svg"
+              )
+            ],
+          )
           // add more Rows of buttons
           ],
       );
