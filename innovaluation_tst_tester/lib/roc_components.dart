@@ -47,10 +47,20 @@ class _ROCEnrollWebViewerState extends State<ROCEnrollWebViewer> {
           url:  Uri.parse('https://roc02.staging.rankone.io:8443'),
 
         ),
+        initialOptions: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(
+            mediaPlaybackRequiresUserGesture: false,
+          )
+        ),
         onWebViewCreated: (controller) {
           _controller = controller;
         },
-
+        androidOnPermissionRequest: (InAppWebViewController controller, String origin,
+            List<String> resources) async {
+          return PermissionRequestResponse(
+            resources: resources,
+            action: PermissionRequestResponseAction.GRANT);
+        },
 
       ),
 
