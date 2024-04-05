@@ -21,7 +21,6 @@ class MainMenuView extends StatefulWidget {
 class _MainMenuViewState extends State<MainMenuView> {
   int currentIndex = 0; 
   late PersistentTabController _controller;
-  //CameraDescription? _firstCamera;
   final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
   String username = '';
   
@@ -46,10 +45,18 @@ class _MainMenuViewState extends State<MainMenuView> {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
   }
 
+  void _takePhoto() async {
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (context) => InstructionsScreen(),
+      ),
+    );
+  }
+
 List<Widget> _buildScreens() {
   return [
     buildMainMenuContent(context), 
-    Container(), 
+    InstructionsScreen(),
     SettingsScreen(), 
   ];
 }
@@ -110,8 +117,8 @@ Widget build(BuildContext context) {
           currentIndex = index;
         });
         if (index == 1) {
-          _controller.jumpToTab(0); // Resets to the first tab, or handle as needed
-          //_navigateToCamera();
+          _controller.jumpToTab(0); // Resets to the first tab
+          _takePhoto();
         }
       },
     ),
@@ -277,19 +284,3 @@ class CustomNavBarIcon extends StatelessWidget {
     );
   }
 }
-
-// class UserStateManager {
-//   final String userId;
-
-//   UserStateManager({required this.userId});
-
-//   Stream<UserState> get userStateStream {
-//     return FirebaseFirestore.instance
-//         .collection('users')
-//         .doc(userId)
-//         .snapshots()
-//         .map((snapshot) => UserState.fromFirestore(snapshot));
-//   }
-// }
-
-

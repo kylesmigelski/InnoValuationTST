@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -20,27 +19,12 @@ class DynamicProgressButton extends StatefulWidget {
 }
 
 class _DynamicProgressButtonState extends State<DynamicProgressButton> {
-  CameraDescription? _firstCamera;
   bool _isDialogShown = false;
   String _lastDialogShownForState = "";
 
   @override
   void initState() {
     super.initState();
-    _initializeCamera();
-  }
-
-  Future<CameraDescription?> _getCamera() async {
-    final cameras = await availableCameras();
-    return cameras.isNotEmpty ? cameras.first : null;
-  }
-
-  void _initializeCamera() {
-    _getCamera().then((camera) {
-      setState(() {
-        _firstCamera = camera;
-      });
-    });
   }
 
   @override
@@ -48,7 +32,7 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
     return StreamBuilder<UserState>(
       stream: userStateStream(widget.userId),
       builder: (context, snapshot) {
-        // Deferred showDialog to postFrameCallback to avoid setState errors during build.
+        // Deferred showDialog to postFrameCallback to avoid setState errors during build
         if (snapshot.hasData) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _showDialogIfNeeded(snapshot.data!);
@@ -115,18 +99,21 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
     }
   }
 
+  // Check if the dialog should be shown based on the user state
   bool _shouldShowDialog(UserState userState) {
     return !userState.questionnaireCompleted ||
         (!userState.initialPhotoTaken && !userState.followUpPhotoTaken) ||
         userState.canTakeFollowUpPhoto() || _isPhotoLocked(userState);
   }
 
+  // Check if the follow-up photo is locked
   bool _isPhotoLocked(UserState userState) {
     return userState.initialPhotoTaken &&
         !userState.canTakeFollowUpPhoto() &&
         !userState.followUpPhotoTaken;
   }
 
+  // Update the camera provider based on the user state
   Future<void> _updateProvider(UserState userState) async {
     if (!userState.questionnaireCompleted) {
       Provider.of<CameraStateProvider>(context, listen: false).isCameraActive = false;
@@ -143,6 +130,7 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
     }
   }
 
+// Define the dialog content based on the user state
 Map<String, String> _dialogContent(UserState userState) {
   Duration? timeRemaining = userState.getLockedCountdownDuration();
 
@@ -191,15 +179,9 @@ Map<String, String> _dialogContent(UserState userState) {
   }
 
   void _takePhoto() async {
-    if (_firstCamera == null) {
-      print("Camera not initialized yet.");
-      return;
-    }
-
-    // Navigate to the camera screen with the first camera
     await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
-        builder: (context) => InstructionsScreen(camera: _firstCamera!),
+        builder: (context) => InstructionsScreen(),
       ),
     );
   }
