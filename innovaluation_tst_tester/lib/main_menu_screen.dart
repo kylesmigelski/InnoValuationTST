@@ -7,10 +7,14 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:camera/camera.dart';
 import 'questionnaire_screen.dart';
-import 'settings_screen.dart'; 
+import 'settings_screen.dart';
 import 'theme_data.dart';
 import 'camera_service.dart';
 import 'dynamic_button.dart';
+import 'user_state.dart';
+import 'package:provider/provider.dart';
+import 'providers/camera_state_provider.dart';
+import 'request_notification_permission.dart';
 
 class MainMenuView extends StatefulWidget {
   @override
@@ -19,12 +23,11 @@ class MainMenuView extends StatefulWidget {
 }
 
 class _MainMenuViewState extends State<MainMenuView> {
-  int currentIndex = 0; 
+  int currentIndex = 0;
   late PersistentTabController _controller;
-  //CameraDescription? _firstCamera;
   final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
   String username = '';
-  
+
   @override
   void initState() {
     super.initState();
@@ -32,7 +35,7 @@ class _MainMenuViewState extends State<MainMenuView> {
     _fetchUsername();
   }
 
-    Future<void> _fetchUsername() async {
+  Future<void> _fetchUsername() async {
     if (userId.isNotEmpty) {
       //This is where it first checks for a doc by the name of uuid
       final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
@@ -43,12 +46,22 @@ class _MainMenuViewState extends State<MainMenuView> {
     }
   }
 
-  void _logoutPressed() {
-    FirebaseAuth.instance.signOut();
+  void _questionnairePressed() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
   }
 
-  void _questionnairePressed() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
+  void _takePhoto() async {
+    if (!Provider.of<CameraStateProvider>(context, listen: false)
+        .isCameraActive) {
+      return;
+    } else {
+      await Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute(
+          builder: (context) => InstructionsScreen(),
+        ),
+      );
+    }
   }
 
   void _faceVerifyPressed() {
@@ -63,29 +76,32 @@ List<Widget> _buildScreens() {
   ];
 }
 
-List<PersistentBottomNavBarItem> _navBarsItems() {
-  return [
-    PersistentBottomNavBarItem(
-      icon: CustomNavBarIcon(asset: 'assets/images/home.svg', isActive: currentIndex == 0),
-      //title: ("Home"),
-      activeColorPrimary: Colors.transparent,
-      inactiveColorPrimary: Colors.transparent,
-    ),
-    PersistentBottomNavBarItem(
-      icon: SvgPicture.asset('assets/images/camera.svg', height: 25, color: Colors.white),
-      //title: ("Camera"),
-      activeColorPrimary: Color.fromARGB(255, 43, 25, 83),
-      inactiveColorPrimary: Colors.grey,
-    ),
-    PersistentBottomNavBarItem(
-      icon: CustomNavBarIcon(asset: 'assets/images/person.svg', isActive: currentIndex == 2),
-      //title: ("Settings"),
-      activeColorPrimary: Colors.transparent,
-      inactiveColorPrimary: Colors.transparent,
-    ),
-  ];
-}
-
+  List<PersistentBottomNavBarItem> _navBarsItems() {
+    final isCameraActive =
+        Provider.of<CameraStateProvider>(context).isCameraActive;
+    return [
+      PersistentBottomNavBarItem(
+        icon: CustomNavBarIcon(
+            asset: 'assets/images/home.svg', isActive: currentIndex == 0),
+        //title: ("Home"),
+        activeColorPrimary: Colors.transparent,
+        inactiveColorPrimary: Colors.transparent,
+      ),
+      PersistentBottomNavBarItem(
+        icon: SvgPicture.asset('assets/images/camera.svg',
+            height: 25, color: Colors.white),
+        activeColorPrimary: isCameraActive ? Color(0xFF2E1C56) : Colors.grey,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: CustomNavBarIcon(
+            asset: 'assets/images/person.svg', isActive: currentIndex == 2),
+        //title: ("Settings"),
+        activeColorPrimary: Colors.transparent,
+        inactiveColorPrimary: Colors.transparent,
+      ),
+    ];
+  }
 
   Widget buildMainMenuContent(BuildContext context) {
     return GradientContainer(
@@ -99,33 +115,34 @@ List<PersistentBottomNavBarItem> _navBarsItems() {
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: PersistentTabView(
-      context,
-      controller: _controller,
-      screens: _buildScreens(),
-      items: _navBarsItems(),
-      confineInSafeArea: true,
-      backgroundColor: Colors.white,
-      navBarStyle: NavBarStyle.style15, 
-      decoration: NavBarDecoration(
-    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    colorBehindNavBar: Colors.white,
-  ),
-      onItemSelected: (int index) {
-        setState(() {
-          currentIndex = index;
-        });
-        if (index == 1) {
-          _controller.jumpToTab(0); // Resets to the first tab, or handle as needed
-          //_navigateToCamera();
-        }
-      },
-    ),
-  );
-}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PersistentTabView(
+        context,
+        controller: _controller,
+        screens: _buildScreens(),
+        items: _navBarsItems(),
+        confineInSafeArea: true,
+        backgroundColor: Colors.white,
+        navBarStyle: NavBarStyle.style15,
+        decoration: NavBarDecoration(
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6.0)],
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          colorBehindNavBar: Colors.white,
+        ),
+        onItemSelected: (int index) {
+          setState(() {
+            currentIndex = index;
+          });
+          if (index == 1) {
+            _controller.jumpToTab(0); // Resets to the first tab
+            _takePhoto();
+          }
+        },
+      ),
+    );
+  }
 
   Widget _buildHeader(BuildContext context) {
     return Column(
@@ -158,7 +175,9 @@ Widget build(BuildContext context) {
         Padding(
           padding: const EdgeInsets.only(top: 8.0, right: 8.0),
           child: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              NotificationPermissionRequester(context).showPermissionDialog();
+            },
             icon: SvgPicture.asset(
               'assets/images/notif.svg',
               height: 25,
@@ -219,48 +238,49 @@ Widget _buildMenu(BuildContext context) {
             ),
           ),
 
-          // Positioned button to overlap the top of the container
-          Positioned(
-            top: 5, // Adjust this to control how much the button overlaps the container
-            left: 0,
-            right: 0,
-            child: Center(
-              child: DynamicProgressButton(userId: userId),
+            // Positioned button to overlap the top of the container
+            Positioned(
+              top:
+                  5, // Adjust this to control how much the button overlaps the container
+              left: 0,
+              right: 0,
+              child: Center(
+                child: DynamicProgressButton(userId: userId),
+              ),
             ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
+          ],
+        ),
+      ],
+    );
+  }
 
-Widget _buildMenuButtons(BuildContext context) {
-        return Column(
+  Widget _buildMenuButtons(BuildContext context) {
+    return Column(
+      children: [
+        Row(
           children: [
-          Row(
-            children: [
-              BigMenuButton(
-                onPressed: () {}, // Implement
-                label: "Log Visit",
-                svg: "assets/images/pencil1.svg",
-              ),
-              SizedBox(width: 24),
-              BigMenuButton(
-                //onPressed: () => _navigateToCamera(),
-                label: "1st Picture",
-                svg: "assets/images/camera.svg",
-              ),
-            ],
-          ),
-          SizedBox(height: 24),
-          Row(
-            children: [
-              BigMenuButton(
-                onPressed: _questionnairePressed,
-                label: "Questionnaire",
-                svg: "assets/images/clipboard2.svg",
-              ),
-              SizedBox(width: 24),
+            BigMenuButton(
+              onPressed: () {}, // Implement
+              label: "Log Visit",
+              svg: "assets/images/pencil1.svg",
+            ),
+            SizedBox(width: 24),
+            BigMenuButton(
+              //onPressed: () => _navigateToCamera(),
+              label: "1st Picture",
+              svg: "assets/images/camera.svg",
+            ),
+          ],
+        ),
+        SizedBox(height: 24),
+        Row(
+          children: [
+            BigMenuButton(
+              onPressed: _questionnairePressed,
+              label: "Questionnaire",
+              svg: "assets/images/clipboard2.svg",
+            ),
+            SizedBox(width: 24),
             BigMenuButton(
                       onPressed: () {},
                       label: "Help",
@@ -288,14 +308,16 @@ class CustomNavBarIcon extends StatelessWidget {
   final String asset;
   final bool isActive;
 
-  const CustomNavBarIcon({Key? key, required this.asset, required this.isActive}) : super(key: key);
+  const CustomNavBarIcon(
+      {Key? key, required this.asset, required this.isActive})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
       asset,
-      color: isActive ? Colors.red : Colors.grey, // Active color : Inactive color
+      color:
+          isActive ? Colors.red : Colors.grey, // Active color : Inactive color
     );
   }
 }
-

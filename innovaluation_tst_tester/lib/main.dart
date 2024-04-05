@@ -6,8 +6,8 @@ import 'firebase_options.dart';
 import 'package:innovaluation_tst_tester/splash.dart';
 import 'main_menu_screen.dart';
 import 'login_screen.dart';
-import 'auth_provider.dart';
-
+import 'providers/auth_provider.dart';
+import 'providers/camera_state_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,8 +16,11 @@ void main() async {
   );
   runApp(
     // Wrap the MyApp widget with ChangeNotifierProvider
-    ChangeNotifierProvider(
-      create: (context) => AuthenticationProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (context) => CameraStateProvider()),
+      ],
       child: MyApp(),
     ),
   );

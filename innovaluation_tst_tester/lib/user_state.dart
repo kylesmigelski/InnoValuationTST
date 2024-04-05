@@ -59,10 +59,15 @@ bool canTakeFollowUpPhoto() {
   if (!initialPhotoTaken || initialPhotoTimestamp == null) return false;
   final now = DateTime.now();
   final initialPhotoTime = initialPhotoTimestamp!.toDate();
-  final elapsedHours = now.difference(initialPhotoTime).inHours;
-  // Eligible to take a follow-up photo starting 48 hours after the initial photo
-  return elapsedHours >= 48 && elapsedHours <= 72;
+  final elapsedSeconds = now.difference(initialPhotoTime).inSeconds;
+
+  // Convert hours to seconds for comparison
+  const minSecondsForFollowUp = 48 * 3600;
+  const maxSecondsForFollowUp = 72 * 3600;
+
+  return elapsedSeconds >= minSecondsForFollowUp && elapsedSeconds <= maxSecondsForFollowUp;
 }
+
 
   Future<void> updateCanTakeFollowUpPhoto() async {
     final bool isEligible = canTakeFollowUpPhoto();
@@ -95,6 +100,13 @@ bool canTakeFollowUpPhoto() {
       return followUpDeadline.difference(DateTime.now());
     }
     return null; // Follow-up photo window has closed
+  }
+
+  bool hasFollowUpPhotoDeadlinePassed() {
+    if (!initialPhotoTaken || initialPhotoTimestamp == null) return false;
+    final initialPhotoTime = initialPhotoTimestamp!.toDate();
+    final followUpDeadline = initialPhotoTime.add(Duration(hours: 72));
+    return DateTime.now().isAfter(followUpDeadline);
   }
 
 }
