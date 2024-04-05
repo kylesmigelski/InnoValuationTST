@@ -42,6 +42,7 @@ dependencies:
   firebase_auth: ^4.17.4
   camera: ^0.10.5+9
   firebase_storage: ^11.6.7
+  app_settings: ^5.1.1
 
   # Firebase-related dependencies (who are we kidding? Probably no one is going to look at this)
   firebase_core: ^2.25.3
