@@ -12,6 +12,7 @@ import 'dynamic_button.dart';
 import 'user_state.dart';
 import 'package:provider/provider.dart';
 import 'providers/camera_state_provider.dart';
+import 'request_notification_permission.dart';
 
 class MainMenuView extends StatefulWidget {
   @override
@@ -160,7 +161,9 @@ Widget build(BuildContext context) {
         Padding(
           padding: const EdgeInsets.only(top: 8.0, right: 8.0),
           child: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              NotificationPermissionRequester(context).showPermissionDialog();
+            },
             icon: SvgPicture.asset(
               'assets/images/notif.svg',
               height: 25,
