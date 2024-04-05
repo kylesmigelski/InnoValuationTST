@@ -46,17 +46,21 @@ class _MainMenuViewState extends State<MainMenuView> {
   }
 
   void _takePhoto() async {
+    if (!Provider.of<CameraStateProvider>(context, listen: false).isCameraActive) {
+      return;
+    } else {
     await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
         builder: (context) => InstructionsScreen(),
       ),
     );
+    }
   }
 
 List<Widget> _buildScreens() {
   return [
     buildMainMenuContent(context), 
-    InstructionsScreen(),
+    Container(),
     SettingsScreen(), 
   ];
 }
@@ -116,9 +120,11 @@ Widget build(BuildContext context) {
         setState(() {
           currentIndex = index;
         });
-        if (index == 1) {
+        if (index == 1 && Provider.of<CameraStateProvider>(context, listen: false).isCameraActive) {
           _controller.jumpToTab(0); // Resets to the first tab
           _takePhoto();
+        } else {
+          _controller.jumpToTab(0);
         }
       },
     ),
