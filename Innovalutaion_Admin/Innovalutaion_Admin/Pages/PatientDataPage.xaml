@@ -9,6 +9,26 @@
       Title="PatientDataPage">
 
     <Grid Background="White">
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.3*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Content="Patient Info" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36pt" FontWeight="Bold"/>
+        <DataGrid x:Name="patientGridView" Grid.Row="1"  Margin="75, 35, 75, 105" ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <!-- Column Header Text + Binding-->
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="username" Binding="{Binding username}" Width="100"/>
+                <DataGridTextColumn Header="uuid" Binding="{Binding uuid}" Width="100"/>
+                <DataGridTextColumn Header="dateCreated" Binding="{Binding dateCreated}" Width="100"/>
+                <DataGridTextColumn Header="WindowBegins" Binding="{Binding twoDayWindow}" Width="100"/>
+                <DataGridTextColumn Header="windowEnds" Binding="{Binding threeDayWindow}" Width="100"/>
+                <DataGridTextColumn Header="initialPhotoTaken" Binding="{Binding hasTakenInitialPhoto}" Width="100"/>
+                <DataGridTextColumn Header="followupTaken" Binding="{Binding hasTakenFollowUpPhoto}" Width="100"/>
+                <DataGridTextColumn Header="QuestionnaireTaken" Binding="{Binding questionnaireCompleted}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
     </Grid>
 </Page>
