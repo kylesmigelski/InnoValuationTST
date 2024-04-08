@@ -24,17 +24,18 @@ namespace Innovalutaion_Admin.Pages
     public partial class PatientDataPage : Page
     {
         private FirebaseAuthLink? _firebaseAuthLink = ((App)Application.Current).firebaseAuthLink;
-        private List<Patient> patientList;
+        private List<Models.Patient> patientList;
+        private int selectedRow = 0;
 
         public PatientDataPage()
         {
             InitializeComponent();
-            patientList = new();
             getDocuments();
         }
 
         async void getDocuments()
         {
+            patientList = new();
             Query usersQuery = K.firestoreDB.Collection("users").WhereEqualTo("createdBy", _firebaseAuthLink.User.LocalId);
             QuerySnapshot dataSnapshot = await usersQuery.GetSnapshotAsync();
 
@@ -45,57 +46,27 @@ namespace Innovalutaion_Admin.Pages
                 //string dictAsString = "";
                 //dictAsString = string.Join(Environment.NewLine, docsnap.ToDictionary().Select(kv => $"{kv.Key} : {kv.Value}"));
                 //MessageBox.Show(dictAsString);
-                Patient patient = new(docsnap.ToDictionary());
+                Models.Patient patient = new(docsnap.ToDictionary());
+                
                 patientList.Add(patient);
-                patientGridView.Items.Add(patient);
+                //patientGridView.Items.Add(patient);
 
             }
+
+            patientGridView.ItemsSource = patientList;
         }
 
-    }
-
-    [FirestoreData]
-    internal class Patient
-    {
-        [FirestoreProperty]
-        public string username { get; set; }
-
-        public string uuid { get; set; }
-        
-        public Timestamp dateCreated { get; set; }
-      
-        public Timestamp twoDayWindow { get; set; }
-      
-        public Timestamp threeDayWindow { get; set; }
-  
-        public bool hasTakenInitialPhoto { get; set; }
-  
-        public bool hasTakenFollowUpPhoto { get; set; }
-
-        public bool hasHadFaceVerification { get; set; }
-      
-        public bool questionnaireCompleted { get; set; }
-
-        public Dictionary<String, bool>? questionnaireAnswers { get; set; }
-        
-        public string[] photoLocations { get; set; }
-
-
-        public Patient(Dictionary<string, dynamic> inputVals)
+        private void patientGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this.username = inputVals["username"];
-            this.uuid = inputVals["uuid"];
-            this.dateCreated = inputVals["dateCreated"];
-            this.twoDayWindow = inputVals["48hourboundary"];
-            this.threeDayWindow = inputVals["72HourBoundary"];
-            this.hasTakenInitialPhoto = inputVals["initialPhotoTaken"];
-            this.hasTakenFollowUpPhoto = inputVals["followUpPhotoTaken"];
-            this.hasHadFaceVerification = inputVals["faceVerified"];
-            this.questionnaireCompleted = (inputVals.ContainsKey("questionnaireCompleted")) ? inputVals["questionnaireCompleted"] : false ;
+            selectedRow = patientGridView.SelectedIndex;
+        }
 
-            this.questionnaireAnswers = (questionnaireCompleted == true) ? inputVals["Answers"] as Dictionary<string, bool> : null;
-            this.photoLocations = (hasTakenInitialPhoto == true) ? inputVals["photosList"] as string[] : new string[0];
-
+        private void onRowDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            //MessageBox.Show("This event fired");
+            Windows.PatientWindow patientWindow = new(patientList[selectedRow]);
+            patientWindow.ShowDialog();
+            getDocuments();
 
         }
     }

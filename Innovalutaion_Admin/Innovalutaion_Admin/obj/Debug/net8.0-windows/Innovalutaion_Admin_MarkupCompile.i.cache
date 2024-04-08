@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\App.xaml
-7-1218673384
+8-199647543
 1-1004457759
-14826568142
+1599218540
 2451467907867
-MainWindow.xaml;Pages\CreatePatientPage.xaml;Pages\ErrorPage.xaml;Pages\HomePage.xaml;Pages\LoginPage.xaml;Pages\PatientDataPage.xaml;Windows\CreateAccountWindow.xaml;
+MainWindow.xaml;Pages\CreatePatientPage.xaml;Pages\ErrorPage.xaml;Pages\HomePage.xaml;Pages\LoginPage.xaml;Pages\PatientDataPage.xaml;Windows\CreateAccountWindow.xaml;Windows\PatientWindow.xaml;
 
 False
 

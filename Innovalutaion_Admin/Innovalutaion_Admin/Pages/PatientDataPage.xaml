@@ -16,7 +16,15 @@
 
         <Label Grid.Row="0" Content="Patient Info" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36pt" FontWeight="Bold"/>
         <DataGrid x:Name="patientGridView" Grid.Row="1"  Margin="75, 35, 75, 105" ScrollViewer.VerticalScrollBarVisibility="Auto"
-            ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            ScrollViewer.HorizontalScrollBarVisibility="Auto" SelectionChanged="patientGridView_SelectionChanged" IsReadOnly="True">
+            
+            <!-- our event handler -->
+            <DataGrid.Resources>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <EventSetter Event="MouseDoubleClick" Handler="onRowDoubleClick"/>
+                </Style>
+            </DataGrid.Resources>
+            
             <!-- Column Header Text + Binding-->
             <DataGrid.Columns>
                 <DataGridTextColumn Header="username" Binding="{Binding username}" Width="100"/>
