@@ -211,7 +211,7 @@ Widget _buildWelcomeLabel(BuildContext context) {
 
 Widget _buildMenu(BuildContext context) {
   return ListView(
-    physics: AlwaysScrollableScrollPhysics(),
+    physics: NeverScrollableScrollPhysics(),
     children: [
       Stack(
         clipBehavior: Clip.none, // Allow elements to overflow the stack
@@ -265,11 +265,11 @@ Widget _buildMenu(BuildContext context) {
               svg: "assets/images/pencil1.svg",
             ),
             SizedBox(width: 24),
-            BigMenuButton(
-              //onPressed: () => _navigateToCamera(),
-              label: "1st Picture",
-              svg: "assets/images/camera.svg",
-            ),
+              BigMenuButton(
+                onPressed: _faceVerifyPressed,
+                label: "Verify Face",
+                svg: "assets/images/clipboard1.svg"
+              )
           ],
         ),
         SizedBox(height: 24),
@@ -288,17 +288,6 @@ Widget _buildMenu(BuildContext context) {
                     ),
             ],
           ),
-          SizedBox(height: 24),
-          Row(
-            children: [
-              BigMenuButton(
-                onPressed: _faceVerifyPressed,
-                label: "Verify Face",
-                svg: "assets/images/clipboard1.svg"
-              )
-            ],
-          )
-          // add more Rows of buttons
           ],
       );
   }
