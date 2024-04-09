@@ -535,14 +535,9 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
 }
 }
 
-
 // TODO
 // ios notification
-// dynamic button design
-// settings screen
-// nav bar camera button 
-// home screen buttons/pages 
-// log in screen design tweaks (resize, hidden password, login button text)
-// notification button functionality
+// grey out questionnaire
+// add roc to dynamic button
+// home screen buttons/pages
 // more push notifications. Questionnaire reminder, photo reminder, missed window
-// user flow of dynamic button. register face -> questionnaire -> take photo -> follow up photo -> results. Missed window?
