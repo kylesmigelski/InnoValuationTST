@@ -56,7 +56,7 @@ class UserState {
   }
 
 bool canTakeFollowUpPhoto() {
-  if (!initialPhotoTaken || initialPhotoTimestamp == null) return false;
+  if (!initialPhotoTaken || initialPhotoTimestamp == null || followUpPhotoTimestamp != null) return false;
   final now = DateTime.now();
   final initialPhotoTime = initialPhotoTimestamp!.toDate();
   final elapsedHours = now.difference(initialPhotoTime).inHours;
