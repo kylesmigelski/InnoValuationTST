@@ -20,7 +20,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     "Have you been in contact with someone with the flu?",
     "Do you have fits of coughing or flu-like symptoms?"
   ];
-  List<bool?> _answers = List.filled(3, null);
+  List<bool?> _answers = List.filled(4, null);
   final Map<String, bool?> _answerMap = {};
 
   // Counter for the current question
