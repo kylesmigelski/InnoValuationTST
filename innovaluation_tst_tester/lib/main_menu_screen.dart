@@ -15,11 +15,12 @@ import 'user_state.dart';
 import 'package:provider/provider.dart';
 import 'providers/camera_state_provider.dart';
 import 'request_notification_permission.dart';
+import 'providers/button_state_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MainMenuView extends StatefulWidget {
   @override
   _MainMenuViewState createState() => _MainMenuViewState();
-
 }
 
 class _MainMenuViewState extends State<MainMenuView> {
@@ -27,6 +28,7 @@ class _MainMenuViewState extends State<MainMenuView> {
   late PersistentTabController _controller;
   final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
   String username = '';
+  final Uri _url = Uri.parse('https://www.cvs.com/minuteclinic/services/tb-testing');
 
   @override
   void initState() {
@@ -38,7 +40,10 @@ class _MainMenuViewState extends State<MainMenuView> {
   Future<void> _fetchUsername() async {
     if (userId.isNotEmpty) {
       //This is where it first checks for a doc by the name of uuid
-      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
       setState(() {
         // Safely use the 'username' field from the document
         username = doc.data()?['username'] ?? '';
@@ -47,9 +52,20 @@ class _MainMenuViewState extends State<MainMenuView> {
   }
 
   void _questionnairePressed() {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
+    if (!Provider.of<ButtonStateProvider>(context, listen: false)
+        .isQuestionnaireActive) {
+      return;
+    } else {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
+    }
   }
+
+Future<void> _launchUrl() async {
+  if (!await launchUrl(_url)) {
+    throw Exception('Could not launch $_url');
+  }
+}
 
   void _takePhoto() async {
     if (!Provider.of<CameraStateProvider>(context, listen: false)
@@ -65,16 +81,26 @@ class _MainMenuViewState extends State<MainMenuView> {
   }
 
   void _faceVerifyPressed() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ROCEnrollWebViewer()));
+    if (!Provider.of<ButtonStateProvider>(context, listen: false)
+        .isFaceActive) {
+      return;
+    } else {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => ROCEnrollWebViewer()));
+    }
   }
 
-List<Widget> _buildScreens() {
-  return [
-    buildMainMenuContent(context), 
-    Container(), 
-    SettingsScreen(), 
-  ];
-}
+  void _helpPressed() {
+    Provider.of<ButtonStateProvider>(context, listen: false).callShowDialog(context);
+  }
+
+  List<Widget> _buildScreens() {
+    return [
+      buildMainMenuContent(context),
+      Container(),
+      SettingsScreen(),
+    ];
+  }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
     final isCameraActive =
@@ -127,7 +153,9 @@ List<Widget> _buildScreens() {
         backgroundColor: Colors.white,
         navBarStyle: NavBarStyle.style15,
         decoration: NavBarDecoration(
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6.0)],
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6.0)
+          ],
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           colorBehindNavBar: Colors.white,
         ),
@@ -189,54 +217,57 @@ List<Widget> _buildScreens() {
     );
   }
 
-Widget _buildWelcomeLabel(BuildContext context) {
-  return Expanded(
-    child: Row(
-      children: [
-        SizedBox(width: MediaQuery.of(context).size.width * 0.06),
-        Container(
-          width: MediaQuery.of(context).size.width * 0.86,
-          child: AutoSizeText(
-            "Welcome, $username!",
-            style: TextStyle(
-              fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -0.2,),
-          ),
-        ),
-        SizedBox(height: 20),
-      ],
-    ),
-  );
-}
-
-
-Widget _buildMenu(BuildContext context) {
-  return ListView(
-    physics: NeverScrollableScrollPhysics(),
-    children: [
-      Stack(
-        clipBehavior: Clip.none, // Allow elements to overflow the stack
+  Widget _buildWelcomeLabel(BuildContext context) {
+    return Expanded(
+      child: Row(
         children: [
-          // Main container for menu buttons - pushed down to make space for the button
+          SizedBox(width: MediaQuery.of(context).size.width * 0.06),
           Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.75,
-            margin: const EdgeInsets.only(top: 50), // Create space for the button to overlap
-            padding: EdgeInsets.symmetric(horizontal: 18, vertical: 45),
-            decoration: BoxDecoration(
-              color: Color(0xF9F9F9F9),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+            width: MediaQuery.of(context).size.width * 0.86,
+            child: AutoSizeText(
+              "Welcome, $username!",
+              style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
               ),
             ),
-            child: Column(
-              children: [
-                // Your menu buttons go here
-                SizedBox(height: 50),
-                _buildMenuButtons(context),
-              ],
-            ),
           ),
+          SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenu(BuildContext context) {
+    return ListView(
+      physics: NeverScrollableScrollPhysics(),
+      children: [
+        Stack(
+          clipBehavior: Clip.none, // Allow elements to overflow the stack
+          children: [
+            // Main container for menu buttons - pushed down to make space for the button
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.75,
+              margin: const EdgeInsets.only(
+                  top: 50), // Create space for the button to overlap
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 45),
+              decoration: BoxDecoration(
+                color: Color(0xF9F9F9F9),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  // Your menu buttons go here
+                  SizedBox(height: 50),
+                  _buildMenuButtons(context),
+                ],
+              ),
+            ),
 
             // Positioned button to overlap the top of the container
             Positioned(
@@ -260,36 +291,52 @@ Widget _buildMenu(BuildContext context) {
         Row(
           children: [
             BigMenuButton(
-              onPressed: () {}, // Implement
-              label: "Log Visit",
-              svg: "assets/images/pencil1.svg",
+              onPressed: _questionnairePressed,
+              label: "Questionnaire",
+              svg: "assets/images/clipboard2.svg",
+              notifSVGPath: Provider.of<ButtonStateProvider>(context)
+                      .isQuestionnaireActive
+                  ? "assets/images/dot.svg"
+                  : null,
+              buttonColor: Provider.of<ButtonStateProvider>(context)
+                  .getButtonColorQuestionnaire(),
+              textColor: Provider.of<ButtonStateProvider>(context)
+                  .getButtonTextColorQuestionnaire(),
             ),
             SizedBox(width: 24),
-              BigMenuButton(
-                onPressed: _faceVerifyPressed,
-                label: "Verify Face",
-                svg: "assets/images/clipboard1.svg"
-              )
+            BigMenuButton(
+              onPressed: _faceVerifyPressed,
+              label: "Verify Face",
+              svg: "assets/images/face.svg",
+              notifSVGPath:
+                  Provider.of<ButtonStateProvider>(context).isFaceActive
+                      ? "assets/images/dot.svg"
+                      : null,
+              buttonColor: Provider.of<ButtonStateProvider>(context)
+                  .getButtonColorFace(),
+              textColor: Provider.of<ButtonStateProvider>(context)
+                  .getButtonTextColorFace(),
+            )
           ],
         ),
         SizedBox(height: 24),
         Row(
           children: [
             BigMenuButton(
-              onPressed: _questionnairePressed,
-              label: "Questionnaire",
-              svg: "assets/images/clipboard2.svg",
+              onPressed: _launchUrl,
+              label: "Schedule Visit",
+              svg: "assets/images/pencil1.svg",
             ),
             SizedBox(width: 24),
             BigMenuButton(
-                      onPressed: () {},
-                      label: "Help",
-                      svg: "assets/images/clipboard1.svg",
-                    ),
-            ],
-          ),
+              onPressed: _helpPressed,
+              label: "Help",
+              svg: "assets/images/help.svg",
+            ),
           ],
-      );
+        ),
+      ],
+    );
   }
 }
 

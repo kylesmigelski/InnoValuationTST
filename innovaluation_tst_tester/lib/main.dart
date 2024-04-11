@@ -8,6 +8,7 @@ import 'main_menu_screen.dart';
 import 'login_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/camera_state_provider.dart';
+import 'providers/button_state_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (context) => CameraStateProvider()),
+        ChangeNotifierProvider(create: (context) => ButtonStateProvider()),
       ],
       child: MyApp(),
     ),

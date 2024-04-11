@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,6 +9,8 @@ import 'camera_service.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'providers/camera_state_provider.dart';
+import 'package:innovaluation_tst_tester/roc_components.dart';
+import 'providers/button_state_provider.dart';
 
 class DynamicProgressButton extends StatefulWidget {
   final String userId;
@@ -21,10 +24,15 @@ class DynamicProgressButton extends StatefulWidget {
 class _DynamicProgressButtonState extends State<DynamicProgressButton> {
   bool _isDialogShown = false;
   String _lastDialogShownForState = "";
+  UserState? userState;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ButtonStateProvider>(context, listen: false)
+          .registerShowDialogFunc(showCustomDialog);
+    });
   }
 
   @override
@@ -33,9 +41,11 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
       stream: userStateStream(widget.userId),
       builder: (context, snapshot) {
         // Deferred showDialog to postFrameCallback to avoid setState errors during build
-        if (snapshot.hasData) {
+        if (snapshot.hasData) { 
+          userState = snapshot.data!;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _showDialogIfNeeded(snapshot.data!);
+            
           });
         }
 
@@ -53,44 +63,18 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
   }
 
   Future<void> _showDialogIfNeeded(UserState userState) async {
-    Map<String, String> dialogContent = _dialogContent(userState);
-    String dialogTitle = dialogContent['title'] ?? 'Update';
-    String dialogMessage =
-        dialogContent['message'] ?? 'There\'s an update for you.';
-
     // Define a string that represents the current significant state
     String currentState =
-        "${userState.questionnaireCompleted}_${userState.initialPhotoTaken}_${userState.followUpPhotoTaken}_${userState.canTakeFollowUpPhoto()}";
+        "${userState.questionnaireCompleted}_${userState.faceVerified}_${userState.initialPhotoTaken}_${userState.followUpPhotoTaken}_${userState.canTakeFollowUpPhoto()}";
 
     // Check if the current state is different from the last one we showed the dialog for
-    if (_shouldShowDialog(userState) &&
-        !_isDialogShown &&
-        _lastDialogShownForState != currentState) {
+    if (_shouldShowDialog(userState) && !_isDialogShown && _lastDialogShownForState != currentState) {
+
       _isDialogShown = true;
       _lastDialogShownForState = currentState; // Update the last known state
       _updateProvider(userState); // Update the camera provider
 
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            title: Text(dialogTitle,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                )),
-            content: Text(dialogMessage, style: TextStyle(color: Colors.black)),
-            actions: <Widget>[
-              TextButton(
-                child: Text('Got it'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          );
-        },
-      );
+      await showCustomDialog(context);
 
       if (mounted) {
         setState(() {
@@ -100,9 +84,38 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
     }
   }
 
+  Future<void> showCustomDialog(BuildContext context) async {
+    Map<String, String> dialogContent = _dialogContent(userState!);
+    String title = dialogContent['title'] ?? 'Update';
+    String message = dialogContent['message'] ?? 'There\'s an update for you.';
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text(title, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          content: Text(message, style: TextStyle(color: Colors.black)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Got it'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _faceVerifyPressed() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ROCEnrollWebViewer()));
+  }
+
   // Check if the dialog should be shown based on the user state
   bool _shouldShowDialog(UserState userState) {
     return !userState.questionnaireCompleted ||
+        !userState.faceVerified ||
         (!userState.initialPhotoTaken && !userState.followUpPhotoTaken) ||
         userState.canTakeFollowUpPhoto() ||
         _isPhotoLocked(userState);
@@ -115,29 +128,23 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
         !userState.followUpPhotoTaken;
   }
 
-  // Update the camera provider based on the user state
-  Future<void> _updateProvider(UserState userState) async {
-    if (!userState.questionnaireCompleted) {
-      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive =
-          false;
-    } else if (!userState.initialPhotoTaken) {
-      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive =
-          true;
-    } else if (_isPhotoLocked(userState) &&
-        !userState.hasFollowUpPhotoDeadlinePassed()) {
-      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive =
-          false;
-    } else if (userState.canTakeFollowUpPhoto()) {
-      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive =
-          true;
-    } else if (userState.hasFollowUpPhotoDeadlinePassed()) {
-      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive =
-          false;
-    } else {
-      Provider.of<CameraStateProvider>(context, listen: false).isCameraActive =
-          false;
-    }
+  // Update the providers based on the user state
+Future<void> _updateProvider(UserState userState) async {
+  // Retrieve the providers only once to avoid multiple look-ups
+  var cameraProvider = Provider.of<CameraStateProvider>(context, listen: false);
+  var buttonProvider = Provider.of<ButtonStateProvider>(context, listen: false);
+
+  // Update the camera active state 
+  if (!userState.questionnaireCompleted || _isPhotoLocked(userState) || userState.hasFollowUpPhotoDeadlinePassed()) {
+    cameraProvider.isCameraActive = false;
+  } else if (userState.initialPhotoTaken || userState.canTakeFollowUpPhoto()) {
+    cameraProvider.isCameraActive = true;
   }
+
+  // Update the button states based on questionnaire and face verification states
+  buttonProvider.isQuestionnaireActive = !userState.questionnaireCompleted;
+  buttonProvider.isFaceActive = !userState.faceVerified;
+}
 
 // Define the dialog content based on the user state
   Map<String, String> _dialogContent(UserState userState) {
@@ -148,6 +155,12 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
         'title': 'Haven\'t completed your questionnaire?',
         'message':
             'Completing your health questionnaire is essential for TST analysis. Click here to complete it and ensure accurate interpretation. Your health is our priority.'
+      };
+    } else if (!userState.faceVerified) {
+      return {
+        'title': 'Face Verification Required',
+        'message':
+            'Please verify your face to proceed. This is a necessary step to ensure the security of your data.'
       };
     } else if (!userState.initialPhotoTaken && !userState.followUpPhotoTaken) {
       return {
@@ -180,8 +193,8 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
       };
     } else {
       return {
-        'title': 'All Done',
-        'message': 'All tasks are completed. Good job!'
+        'title': 'All Tasks Completed',
+        'message': 'Please await your diagnosis. Thank you for your cooperation.'
       };
     }
   }
@@ -217,12 +230,23 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
       return buildStateButton(
           context: context,
           text: 'Complete Questionnaire',
+          fontSize: 20,
           iconPath: "assets/images/clipboard2.svg",
           color: const Color.fromARGB(255, 188, 188, 188),
           hasProgressBar: false,
           userState: userState,
           onPressed: _completeQuestionnaire,
           tooltipMessage: "Complete the questionnaire to proceed.");
+    } else if (!userState.faceVerified) {
+      return buildStateButton(
+          context: context,
+          text: 'Verify Face',
+          iconPath: "assets/images/face.svg",
+          color: Color(0xFF2E1C56),
+          hasProgressBar: false,
+          userState: userState,
+          onPressed: _faceVerifyPressed,
+          tooltipMessage: "Verify your face to proceed.");
     } else if (!userState.initialPhotoTaken) {
       return buildStateButton(
           context: context,
@@ -285,6 +309,7 @@ Widget buildStateButton({
   required bool hasProgressBar,
   required UserState userState,
   String? tooltipMessage,
+  double? fontSize,
 }) {
   // Function to darken color
   Color darken(Color color, [double amount = .1]) {
@@ -355,7 +380,7 @@ Widget buildStateButton({
                     child: Text(
                       text,
                       style: TextStyle(
-                          fontSize: 24,
+                          fontSize: fontSize ?? 24,
                           color: Colors.white,
                           fontWeight: FontWeight.bold),
                       textAlign: TextAlign.left,
@@ -536,8 +561,6 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
 }
 
 // TODO
-// ios notification
-// grey out questionnaire
-// add roc to dynamic button
-// home screen buttons/pages
+// language support
+// home screen log visit button?
 // more push notifications. Questionnaire reminder, photo reminder, missed window

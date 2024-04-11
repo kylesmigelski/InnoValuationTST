@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_svg/flutter_svg.dart';
 
 //I guess we'll put important constants up here that need to be referenced
@@ -52,12 +51,18 @@ class BigMenuButton extends StatelessWidget {
   final void Function()? onPressed;
   final String label;
   final String svg;
+  Color buttonColor;
+  Color textColor;
+  String? notifSVGPath;
 
   BigMenuButton({
     Key? key,
     this.onPressed,
     required this.label,
     required this.svg,
+    this.buttonColor = Colors.white,
+    this.textColor = Colors.black,
+    this.notifSVGPath,
   }) : super(key: key);
 
   Widget _buildSVGFromString(BuildContext context, double minWidth) {
@@ -68,6 +73,7 @@ class BigMenuButton extends StatelessWidget {
       semanticsLabel: svg.substring("assets/images/".length),
       height: svgSize,
       width: svgSize,
+      color: Colors.grey[500],
     );
   }
 
@@ -88,7 +94,7 @@ class BigMenuButton extends StatelessWidget {
           // Remove fixed height to allow content to determine the height
           padding: const EdgeInsets.all(16), // Padding inside the button
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: buttonColor,
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
@@ -99,29 +105,35 @@ class BigMenuButton extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // Make the column's height fit its children
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 16, // Adjust font size as needed
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(height: 8), // Space between text and SVG
-              Align(
-                alignment: Alignment.bottomRight,
-                child: _buildSVGFromString(context, buttonWidth),
-              ),
-            ],
+          child:Column(
+  mainAxisSize: MainAxisSize.min, // Make the column's height fit its children
+  mainAxisAlignment: MainAxisAlignment.start,
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between items in the row
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16, // Adjust font size as needed
+            color: textColor,
+            fontWeight: FontWeight.bold,
           ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        // Assuming _buildSVGFromString builds an SVG from assets
+        if (notifSVGPath != null) SvgPicture.asset(notifSVGPath!),
+      ],
+    ),
+    SizedBox(height: 8), // Space below the row if needed for additional components
+    Align(
+      alignment: Alignment.bottomRight,
+      child: _buildSVGFromString(context, buttonWidth), // Additional SVG if needed at bottom right
+    ),
+  ],
+),
+
         ),
       ),
     );

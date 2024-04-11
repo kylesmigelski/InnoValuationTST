@@ -8,6 +8,7 @@ class UserState {
   final bool followUpPhotoTaken;
   final Timestamp? followUpPhotoTimestamp;
   final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  final bool faceVerified;
 
   UserState({
     required this.questionnaireCompleted,
@@ -15,6 +16,7 @@ class UserState {
     this.initialPhotoTimestamp,
     required this.followUpPhotoTaken,
     this.followUpPhotoTimestamp,
+    required this.faceVerified,
   });
 
   factory UserState.fromFirestore(DocumentSnapshot doc) {
@@ -26,6 +28,7 @@ class UserState {
       initialPhotoTimestamp: data['initialPhotoTimestamp'],
       followUpPhotoTaken: data['followUpPhotoTaken'] ?? false,
       followUpPhotoTimestamp: data['followUpPhotoTimestamp'],
+      faceVerified: data['faceVerified'] ?? false,
     );
   }
 
@@ -36,6 +39,7 @@ class UserState {
       'initialPhotoTimestamp': initialPhotoTimestamp,
       'followUpPhotoTaken': followUpPhotoTaken,
       'followUpPhotoTimestamp': followUpPhotoTimestamp,
+      'faceVerified': faceVerified,
     };
   }
 
@@ -45,6 +49,7 @@ class UserState {
     Timestamp? initialPhotoTimestamp,
     bool? followUpPhotoTaken,
     Timestamp? followUpPhotoTimestamp,
+    bool? faceVerified,
   }) {
     return UserState(
       questionnaireCompleted: questionnaireCompleted ?? this.questionnaireCompleted,
@@ -52,6 +57,7 @@ class UserState {
       initialPhotoTimestamp: initialPhotoTimestamp ?? this.initialPhotoTimestamp,
       followUpPhotoTaken: followUpPhotoTaken ?? this.followUpPhotoTaken,
       followUpPhotoTimestamp: followUpPhotoTimestamp ?? this.followUpPhotoTimestamp,
+      faceVerified: faceVerified ?? this.faceVerified,
     );
   }
 
