@@ -171,3 +171,5 @@ C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Innovalutaion_Admin.csproj.CopyComplete
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Innovalutaion_Admin.genruntimeconfig.cache
 C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\ref\Innovalutaion_Admin.dll
+C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Windows\PatientWindow.g.cs
+C:\Users\adamk\source\repos\w24-innovaluation\Innovalutaion_Admin\Innovalutaion_Admin\obj\Debug\net8.0-windows\Windows\PatientWindow.baml

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Innovalutaion_Admin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f30877bbbda6744393d2fdfe6194d3d7b821df77")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+52165804b5bab0f9ef69ebfe06ef7fb88a1be8e9")]
 [assembly: System.Reflection.AssemblyProductAttribute("Innovalutaion_Admin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Innovalutaion_Admin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

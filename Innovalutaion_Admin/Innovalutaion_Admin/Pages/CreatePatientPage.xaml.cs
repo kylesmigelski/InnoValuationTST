@@ -86,7 +86,7 @@ namespace Innovalutaion_Admin.Pages
                 var newUserUID = tempLink.User.LocalId;
 
                 Google.Cloud.Firestore.DocumentReference newUserReference = K.firestoreDB!.Collection("users")
-                    .Document(String.Format("{0} - {1}", username, newUserUID));
+                    .Document(newUserUID);
 
                 Dictionary<string, object> newUserTemplate = new()
                 {
