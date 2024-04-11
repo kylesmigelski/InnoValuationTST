@@ -28,6 +28,7 @@ namespace Innovalutaion_Admin.Pages
     {
 
         FirebaseAuthProvider _firebaseAuthProvider = ((App)Application.Current).firebaseAuthProvider();
+        
 
 
         public LoginPage()
