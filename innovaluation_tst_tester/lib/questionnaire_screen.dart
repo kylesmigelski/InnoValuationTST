@@ -16,8 +16,9 @@ class QuestionnaireScreen extends StatefulWidget {
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   final _questionList = [
     "Have you been out of the country in the past 30 days?",
-    "Have you been in contact with someone who was confirmed positive for Tuberculosis in the past 3 days?",
-    "Are you immunocompromised?"
+    "Have you been in contact with someone who was confirmed positive for Tuberculosis?",
+    "Have you been in contact with someone with the flu?",
+    "Do you have fits of coughing or flu-like symptoms?"
   ];
   List<bool?> _answers = List.filled(3, null);
   final Map<String, bool?> _answerMap = {};
