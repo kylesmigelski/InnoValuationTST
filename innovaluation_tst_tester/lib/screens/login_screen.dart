@@ -6,8 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
-import 'package:innovaluation_tst_tester/main_menu_screen.dart';
-import 'package:innovaluation_tst_tester/request_notification_permission.dart';
+import 'package:innovaluation_tst_tester/screens/main_menu_screen.dart';
+import 'package:innovaluation_tst_tester/widgets/request_notification_permission.dart';
 
 final _firebaseAuth = FirebaseAuth.instance;
 

@@ -2,20 +2,20 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:innovaluation_tst_tester/roc_components.dart';
+import 'package:innovaluation_tst_tester/widgets/roc_components.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:camera/camera.dart';
 import 'questionnaire_screen.dart';
 import 'settings_screen.dart';
-import 'theme_data.dart';
-import 'camera_service.dart';
-import 'dynamic_button.dart';
-import 'user_state.dart';
+import '../theme_data.dart';
+import '../widgets/camera_service.dart';
+import '../widgets/dynamic_button.dart';
+import '../utils/user_state.dart';
 import 'package:provider/provider.dart';
-import 'providers/camera_state_provider.dart';
-import 'request_notification_permission.dart';
-import 'providers/button_state_provider.dart';
+import '../providers/camera_state_provider.dart';
+import '../widgets/request_notification_permission.dart';
+import '../providers/button_state_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MainMenuView extends StatefulWidget {

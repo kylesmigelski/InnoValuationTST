@@ -4,14 +4,14 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:innovaluation_tst_tester/main_menu_screen.dart';
+import 'package:innovaluation_tst_tester/screens/main_menu_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'package:geolocator/geolocator.dart';
-import 'user_state.dart';
+import '../utils/user_state.dart';
 import 'package:provider/provider.dart';
-import 'providers/camera_state_provider.dart';
+import '../providers/camera_state_provider.dart';
 
 final _currentUser = FirebaseAuth.instance.currentUser!;
 

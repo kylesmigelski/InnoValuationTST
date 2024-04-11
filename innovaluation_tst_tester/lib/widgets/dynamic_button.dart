@@ -2,15 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '/user_state.dart';
-import 'questionnaire_screen.dart';
+import '../utils/user_state.dart';
+import '../screens/questionnaire_screen.dart';
 import 'package:camera/camera.dart';
 import 'camera_service.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
-import 'providers/camera_state_provider.dart';
-import 'package:innovaluation_tst_tester/roc_components.dart';
-import 'providers/button_state_provider.dart';
+import '../providers/camera_state_provider.dart';
+import 'package:innovaluation_tst_tester/widgets/roc_components.dart';
+import '../providers/button_state_provider.dart';
 
 class DynamicProgressButton extends StatefulWidget {
   final String userId;
@@ -562,5 +562,4 @@ class _CountdownProgressBarState extends State<CountdownProgressBar> {
 
 // TODO
 // language support
-// home screen log visit button?
 // more push notifications. Questionnaire reminder, photo reminder, missed window
