@@ -4,55 +4,17 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:innovaluation_tst_tester/screens/main_menu_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'package:geolocator/geolocator.dart';
 import '../utils/user_state.dart';
 import 'package:provider/provider.dart';
 import '../providers/camera_state_provider.dart';
+import 'package:innovaluation_tst_tester/widgets/instructions_modal.dart';
 
 final _currentUser = FirebaseAuth.instance.currentUser!;
-
-class InstructionsScreen extends StatelessWidget {
-  const InstructionsScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Photo Instructions')),
-      body: GradientContainer(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-              const Padding(
-                padding: EdgeInsets.all(25.0),
-                child: Text(
-                  'To take a photo, press the camera button. Make sure the subject is well-lit and in focus.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 22),
-                ),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const TakePictureScreen(),
-                  ));
-                },
-                child: const Text('Open Camera'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen({Key? key}) : super(key: key);
@@ -63,117 +25,238 @@ class TakePictureScreen extends StatefulWidget {
 
 class TakePictureScreenState extends State<TakePictureScreen> {
   late Future<void> _initializeControllerFuture;
+  FlashMode _flashMode = FlashMode.auto; // Default flash mode set to auto
+
 
   @override
   void initState() {
     super.initState();
-    // Initialize camera in provider if not already done
-    final cameraProvider = Provider.of<CameraStateProvider>(context, listen: false);
+    _initializeControllerFuture = _initCamera();
+
+    // Schedule the modal bottom sheet to show after the UI has been built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showModalBottomSheet(context);
+    });
+  }
+
+  Future<void> _initCamera() async {
+    final cameraProvider =
+        Provider.of<CameraStateProvider>(context, listen: false);
     if (cameraProvider.controller == null) {
-      _initializeControllerFuture = cameraProvider.initializeCamera();
-    } else {
-      _initializeControllerFuture = Future.value();
+      return cameraProvider.initializeCamera();
     }
+    return Future.value();
+  }
+
+    void _setFlashMode(FlashMode mode) async {
+    final cameraProvider = Provider.of<CameraStateProvider>(context, listen: false);
+    if (cameraProvider.controller != null) {
+      await cameraProvider.controller!.setFlashMode(mode);
+      setState(() {
+        _flashMode = mode;
+      });
+    }
+  }
+
+    Widget _flashButton() {
+    IconData icon = Icons.flash_off; // default icon
+    switch (_flashMode) {
+      case FlashMode.auto:
+        icon = Icons.flash_auto;
+        break;
+      case FlashMode.always:
+        icon = Icons.flash_on;
+        break;
+      case FlashMode.off:
+        icon = Icons.flash_off;
+        break;
+      case FlashMode.torch:
+        icon = Icons.highlight;
+        break;
+    }
+    
+    return IconButton(
+      icon: Icon(icon, color: Colors.white),
+      onPressed: () {
+        FlashMode nextMode = FlashMode.values[(_flashMode.index + 1) % FlashMode.values.length];
+        _setFlashMode(nextMode);
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final cameraProvider = Provider.of<CameraStateProvider>(context, listen: true);
-
+    final cameraProvider =
+        Provider.of<CameraStateProvider>(context, listen: true);
     return Scaffold(
       appBar: AppBar(title: const Text('Take a picture')),
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && cameraProvider.controller != null) {
-            return CameraPreview(cameraProvider.controller!);
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        // Provide an onPressed callback.
-        onPressed: () async {
-          // Take the Picture in a try / catch block. If anything goes wrong,
-          // catch the error.
-          try {
-            // Ensure that the camera is initialized.
-            await _initializeControllerFuture;
-
-            // Attempt to take a picture and get the file `image`
-            // where it was saved.
-            final image = await cameraProvider.controller!.takePicture();
-
-            if (!mounted) return;
-
-            // If the picture was taken, display it on a new screen.
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => DisplayPictureScreen(
-                  // Pass the automatically generated path to
-                  // the DisplayPictureScreen widget.
-                  imagePath: image.path,
-                ),
+      body: Stack(
+        children: [
+          FutureBuilder<void>(
+            future: _initializeControllerFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done &&
+                  cameraProvider.controller != null) {
+                return CameraPreview(cameraProvider.controller!);
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black
+                  .withOpacity(0.3), // Semi-transparent black bottom bar
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              height: MediaQuery.of(context).size.height /
+                  5, // 1/5 of the screen height
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _flashButton(),
+                  // Invisible box to balance the help button
+                  //SizedBox(width: 48), // Match the width of the help button
+                  GestureDetector(
+                    onTap: takePicture,
+                    child: Container(
+                      width: 75, // Custom size for the camera button
+                      height: 75, // Custom size for the camera button
+                      decoration: BoxDecoration(
+                        color: Colors.transparent, // Camera button color
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black45,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: SvgPicture.asset('assets/images/camera3.svg'),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _showModalBottomSheet(context),
+                    child: Container(
+                      width: 48, // Custom size for the help button
+                      height: 48, // Custom size for the help button
+                      decoration: BoxDecoration(
+                        color: Colors.black, // Help button color
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black45,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: Icon(Icons.help_outline, color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
-            );
-          } catch (e) {
-            // If an error occurs, log the error to the console.
-            print(e);
-          }
-        },
-        child: const Icon(Icons.camera_alt),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  void _showModalBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        // Rounded corners at the top
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          maxChildSize: 0.9,
+          minChildSize: 0.22,
+          expand: false,
+          builder: (context, scrollController) {
+            return InstructionsModal();
+          }),
+    );
+  }
+
+  void takePicture() async {
+    final cameraProvider =
+        Provider.of<CameraStateProvider>(context, listen: false);
+    try {
+      await _initializeControllerFuture;
+      if (cameraProvider.controller != null) {
+        final image = await cameraProvider.controller!.takePicture();
+        await cameraProvider.controller!.setFlashMode(FlashMode.off);
+        if (!mounted) return;
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => DisplayPictureScreen(imagePath: image.path),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }
 
 class DisplayPictureScreen extends StatelessWidget {
-
   DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
 
   final String imagePath;
-  final _cloudFirestoreImageFolderLocation = FirebaseFirestore.instance
-      .collection('images');
-  final _currentUserDocRef = FirebaseFirestore.instance.collection("users").
-  doc(_currentUser.uid);
+  final _cloudFirestoreImageFolderLocation =
+      FirebaseFirestore.instance.collection('images');
+  final _currentUserDocRef =
+      FirebaseFirestore.instance.collection("users").doc(_currentUser.uid);
 
   Future<void> _uploadImageToFirestore(Position position) async {
-  File file = File(imagePath);
-  DateTime currentDateTime = DateTime.now();
-  final imagePath4Firestore = '${_currentUser.uid} - $currentDateTime';
+    File file = File(imagePath);
+    DateTime currentDateTime = DateTime.now();
+    final imagePath4Firestore = '${_currentUser.uid} - $currentDateTime';
 
-  firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
-      .ref()
-      .child('images')
-      .child(imagePath4Firestore);
+    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('images')
+        .child(imagePath4Firestore);
 
-  await ref.putFile(file);
-  String downloadURL = await ref.getDownloadURL();
+    await ref.putFile(file);
+    String downloadURL = await ref.getDownloadURL();
 
-  _cloudFirestoreImageFolderLocation.doc(imagePath4Firestore).set({
-    'url': downloadURL,
-    'createdAt': FieldValue.serverTimestamp(),
-    'latitude': position.latitude,
-    'longitude': position.longitude,
-  });
+    _cloudFirestoreImageFolderLocation.doc(imagePath4Firestore).set({
+      'url': downloadURL,
+      'createdAt': FieldValue.serverTimestamp(),
+      'latitude': position.latitude,
+      'longitude': position.longitude,
+    });
 
-  DocumentSnapshot userDocSnapshot = await _currentUserDocRef.get();
-  UserState currentUserState = UserState.fromFirestore(userDocSnapshot);
+    DocumentSnapshot userDocSnapshot = await _currentUserDocRef.get();
+    UserState currentUserState = UserState.fromFirestore(userDocSnapshot);
 
-  bool isInitialPhoto = currentUserState.initialPhotoTaken == false;
-  
-  Timestamp photoTimestamp = Timestamp.fromDate(currentDateTime);
+    bool isInitialPhoto = currentUserState.initialPhotoTaken == false;
 
-  currentUserState = currentUserState.copyWith(
-    initialPhotoTaken: isInitialPhoto ? true : currentUserState.initialPhotoTaken,
-    initialPhotoTimestamp: isInitialPhoto ? photoTimestamp : currentUserState.initialPhotoTimestamp,
-    followUpPhotoTaken: !isInitialPhoto ? true : currentUserState.followUpPhotoTaken,
-    followUpPhotoTimestamp: !isInitialPhoto ? photoTimestamp : currentUserState.followUpPhotoTimestamp,
-  );
+    Timestamp photoTimestamp = Timestamp.fromDate(currentDateTime);
 
-  // Updating the user document with the new state
-  await _currentUserDocRef.update(currentUserState.toJson());
+    currentUserState = currentUserState.copyWith(
+      initialPhotoTaken:
+          isInitialPhoto ? true : currentUserState.initialPhotoTaken,
+      initialPhotoTimestamp: isInitialPhoto
+          ? photoTimestamp
+          : currentUserState.initialPhotoTimestamp,
+      followUpPhotoTaken:
+          !isInitialPhoto ? true : currentUserState.followUpPhotoTaken,
+      followUpPhotoTimestamp: !isInitialPhoto
+          ? photoTimestamp
+          : currentUserState.followUpPhotoTimestamp,
+    );
+
+    // Updating the user document with the new state
+    await _currentUserDocRef.update(currentUserState.toJson());
 
     List<String> snapshotPathList;
 
@@ -185,11 +268,10 @@ class DisplayPictureScreen extends StatelessWidget {
       snapshotPathList = [];
     }
 
+    snapshotPathList.add(downloadURL);
 
-  snapshotPathList.add(downloadURL);
-  
-  await _currentUserDocRef.update({'photosList': snapshotPathList});
-}
+    await _currentUserDocRef.update({'photosList': snapshotPathList});
+  }
 
   /// Determine the current position of the device.
   ///
@@ -232,7 +314,7 @@ class DisplayPictureScreen extends StatelessWidget {
     return await Geolocator.getCurrentPosition();
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Display the Picture')),
@@ -240,54 +322,28 @@ class DisplayPictureScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
-            child: Image.file(File(imagePath)),
-          ),
-          Row(
+          Expanded(child: Image.file(File(imagePath))),
+          Container(
+            height: MediaQuery.of(context).size.height / 5,
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  Position? pos;
-                  // Ensuring user grants location permission
+                  // navigator to the main menu view
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainMenuView(),
+                    ),
+                  );
                   try {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Uploading image'),
-                        )
-                    );
-                    pos = await _determinePosition();
-                  } catch (error) {
-                    print("error getting location data: $error");
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please allow location permissions to continue.'),
-                        )
-                    );
-                    Navigator.pop(context, false);
-                    return;
-                  }
-                  // User confirms the picture, send to database, navigate back to main menu
-                  try {
-                    await _uploadImageToFirestore(pos);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Uploaded'),
-                        )
-                    );
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MainMenuView()),
-                    );
-                  } catch (error) {
-                    // Handle error
-                    print("Error uploading image data: $error");                   // Show an error message to the user
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                        content: Text('Failed to upload image. Please try again.'),
-                        )
-                    );
-                    Navigator.pop(context, false);
+                    Position position = await _determinePosition();
+                    _uploadImageToFirestore(position); // Upload in the background
+                  } catch (e) {
+                    print("Error: $e"); // Log errors
+
                   }
                 },
                 child: const Text('Confirm'),
@@ -295,16 +351,15 @@ class DisplayPictureScreen extends StatelessWidget {
               const SizedBox(width: 16),
               ElevatedButton(
                 onPressed: () {
-                  // User wants to retake the picture, navigate back and remove the current picture
-                  Navigator.pop(context, false);
+                  Navigator.pop(context); // Navigate back without uploading
                 },
                 child: const Text('Retake'),
               ),
             ],
+          ),
           ),
         ],
       ),
     );
   }
 }
-

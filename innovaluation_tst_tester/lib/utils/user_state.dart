@@ -74,8 +74,7 @@ bool canTakeFollowUpPhoto() {
   return elapsedSeconds >= minSecondsForFollowUp && elapsedSeconds <= maxSecondsForFollowUp;
 }
 
-
-  Future<void> updateCanTakeFollowUpPhoto() async {
+Future<void> updateCanTakeFollowUpPhoto() async {
     final bool isEligible = canTakeFollowUpPhoto();
     await FirebaseFirestore.instance
         .collection('users')
