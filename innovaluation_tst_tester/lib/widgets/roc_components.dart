@@ -102,14 +102,14 @@ class _ROCEnrollWebViewerState extends State<ROCEnrollWebViewer> {
 
   @override
   Widget build(context) {
-    //print("OTP: $_otp");
+    print("OTP: $_otp");
     return Scaffold(
       appBar: AppBar(
         title: Text("Face Verification"),
       ),
       body: InAppWebView(
         initialUrlRequest: URLRequest(
-          url:  Uri.parse(_baseURL + "/rocenroll/rocenroll/home?flavor=gvsu"),
+          url:  Uri.parse(_baseURL), // + "/rocenroll/rocenroll/home?flavor=gvsu&otp=$_otp"),
 
         ),
         initialOptions: InAppWebViewGroupOptions(
