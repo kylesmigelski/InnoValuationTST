@@ -83,14 +83,27 @@ Future<void> _launchUrl() async {
   }
 
   void _faceVerifyPressed() {
-    if (!Provider.of<ButtonStateProvider>(context, listen: false)
-        .isFaceActive) {
-      return;
-    } else {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => ROCEnrollWebViewer()));
-    }
+  if (!Provider.of<ButtonStateProvider>(context, listen: false).isFaceActive) {
+    return;
+  } else {
+    Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => ROCEnrollWebViewer()))
+      .then((_) {
+        // Assume the face has been verified when the viewer is closed
+        updateFaceVerificationStatus(userId, true)
+          .then((_) => print("Face verification status updated"))
+          .catchError((error) => print("Failed to update face verification status: $error"));
+      });
   }
+}
+
+
+  Future<void> updateFaceVerificationStatus(String userId, bool status) async {
+  FirebaseFirestore.instance.collection('users').doc(userId).update({
+    'faceVerified': status,
+  });
+}
+
 
   void _helpPressed() {
     Provider.of<DialogManager>(context, listen: false).showCustomDialog(context);
