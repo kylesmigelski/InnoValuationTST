@@ -20,7 +20,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
-        ChangeNotifierProvider(create: (context) => CameraStateProvider()),
+        ChangeNotifierProvider(create: (_) => CameraStateProvider()..initializeCamera()),
         ChangeNotifierProvider(create: (context) => ButtonStateProvider()),
       ],
       child: MyApp(),

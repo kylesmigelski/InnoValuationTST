@@ -45,7 +45,6 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
           userState = snapshot.data!;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _showDialogIfNeeded(snapshot.data!);
-            
           });
         }
 
@@ -64,21 +63,23 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
 
   Future<void> _showDialogIfNeeded(UserState userState) async {
     // Define a string that represents the current significant state
+     // Update the camera provider
     String currentState =
-        "${userState.questionnaireCompleted}_${userState.faceVerified}_${userState.initialPhotoTaken}_${userState.followUpPhotoTaken}_${userState.canTakeFollowUpPhoto()}";
+        "${userState.questionnaireCompleted}_${userState.faceVerified}_${userState.initialPhotoTaken}_${userState.followUpPhotoTaken}}";
 
     // Check if the current state is different from the last one we showed the dialog for
-    if (_shouldShowDialog(userState) && !_isDialogShown && _lastDialogShownForState != currentState) {
-
+    if (_shouldShowDialog(userState) && _lastDialogShownForState != currentState) {
+      _updateProvider(userState);
+     } if (!_isDialogShown){
       _isDialogShown = true;
       _lastDialogShownForState = currentState; // Update the last known state
-      _updateProvider(userState); // Update the camera provider
+      
 
       await showCustomDialog(context);
 
       if (mounted) {
         setState(() {
-          _isDialogShown = false;
+          //_isDialogShown = false;
         });
       }
     }
@@ -208,7 +209,7 @@ Future<void> _updateProvider(UserState userState) async {
   void _takePhoto() async {
     await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
-        builder: (context) => InstructionsScreen(),
+        builder: (context) => TakePictureScreen(),
       ),
     );
   }
@@ -224,7 +225,7 @@ Future<void> _updateProvider(UserState userState) async {
 
   Widget _displayUserState(UserState userState) {
     // Check if the dialog should be shown and display it
-    _shouldShowDialog(userState);
+    //_shouldShowDialog(userState);
 
     if (!userState.questionnaireCompleted) {
       return buildStateButton(
@@ -248,6 +249,7 @@ Future<void> _updateProvider(UserState userState) async {
           onPressed: _faceVerifyPressed,
           tooltipMessage: "Verify your face to proceed.");
     } else if (!userState.initialPhotoTaken) {
+      //_isDialogShown = false;
       return buildStateButton(
           context: context,
           text: 'Take Initial Photo',
@@ -279,6 +281,7 @@ Future<void> _updateProvider(UserState userState) async {
       return buildStateButton(
           context: context,
           text: 'All tasks completed',
+          tooltipMessage: "Please await your diagnosis. Thank you for your cooperation.",
           iconPath: "assets/images/clipboard2.svg",
           color: Color(0xFF949494),
           hasProgressBar: false,

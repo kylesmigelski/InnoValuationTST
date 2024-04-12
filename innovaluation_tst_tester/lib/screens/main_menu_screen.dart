@@ -74,7 +74,7 @@ Future<void> _launchUrl() async {
     } else {
       await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
-          builder: (context) => InstructionsScreen(),
+          builder: (context) => TakePictureScreen(),
         ),
       );
     }
