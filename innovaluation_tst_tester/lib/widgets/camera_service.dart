@@ -8,7 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:innovaluation_tst_tester/screens/main_menu_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:innovaluation_tst_tester/theme_data.dart';
 import 'package:geolocator/geolocator.dart';
 import '../utils/user_state.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +25,8 @@ class TakePictureScreen extends StatefulWidget {
 
 class TakePictureScreenState extends State<TakePictureScreen> {
   late Future<void> _initializeControllerFuture;
-  bool showInstructions = true; // Control the visibility of the instructions
+  FlashMode _flashMode = FlashMode.auto; // Default flash mode set to auto
+
 
   @override
   void initState() {
@@ -46,6 +46,42 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       return cameraProvider.initializeCamera();
     }
     return Future.value();
+  }
+
+    void _setFlashMode(FlashMode mode) async {
+    final cameraProvider = Provider.of<CameraStateProvider>(context, listen: false);
+    if (cameraProvider.controller != null) {
+      await cameraProvider.controller!.setFlashMode(mode);
+      setState(() {
+        _flashMode = mode;
+      });
+    }
+  }
+
+    Widget _flashButton() {
+    IconData icon = Icons.flash_off; // default icon
+    switch (_flashMode) {
+      case FlashMode.auto:
+        icon = Icons.flash_auto;
+        break;
+      case FlashMode.always:
+        icon = Icons.flash_on;
+        break;
+      case FlashMode.off:
+        icon = Icons.flash_off;
+        break;
+      case FlashMode.torch:
+        icon = Icons.highlight;
+        break;
+    }
+    
+    return IconButton(
+      icon: Icon(icon, color: Colors.white),
+      onPressed: () {
+        FlashMode nextMode = FlashMode.values[(_flashMode.index + 1) % FlashMode.values.length];
+        _setFlashMode(nextMode);
+      },
+    );
   }
 
   @override
@@ -80,8 +116,9 @@ class TakePictureScreenState extends State<TakePictureScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  _flashButton(),
                   // Invisible box to balance the help button
-                  SizedBox(width: 48), // Match the width of the help button
+                  //SizedBox(width: 48), // Match the width of the help button
                   GestureDetector(
                     onTap: takePicture,
                     child: Container(
@@ -155,6 +192,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       await _initializeControllerFuture;
       if (cameraProvider.controller != null) {
         final image = await cameraProvider.controller!.takePicture();
+        await cameraProvider.controller!.setFlashMode(FlashMode.off);
         if (!mounted) return;
         await Navigator.of(context).push(
           MaterialPageRoute(
@@ -165,37 +203,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     } catch (e) {
       print(e);
     }
-  }
-}
-
-class InstructionsOverlay extends StatelessWidget {
-  final ScrollController? scrollController;
-
-  const InstructionsOverlay({Key? key, this.scrollController})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white.withOpacity(0.95),
-      padding: const EdgeInsets.all(16),
-      child: ListView(
-        controller: scrollController, // Pass the ScrollController to ListView
-        children: [
-          Text(
-            'To take a photo, press the camera button. Make sure the subject is well-lit and in focus.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 22),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Got it!'),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -336,6 +343,7 @@ class DisplayPictureScreen extends StatelessWidget {
                     _uploadImageToFirestore(position); // Upload in the background
                   } catch (e) {
                     print("Error: $e"); // Log errors
+
                   }
                 },
                 child: const Text('Confirm'),

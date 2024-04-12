@@ -1,16 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../utils/user_state.dart';
 import '../screens/questionnaire_screen.dart';
-import 'package:camera/camera.dart';
 import 'camera_service.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
-import '../providers/camera_state_provider.dart';
 import 'package:innovaluation_tst_tester/widgets/roc_components.dart';
-import '../providers/button_state_provider.dart';
+import '../providers/dialog_provider.dart';
 
 class DynamicProgressButton extends StatefulWidget {
   final String userId;
@@ -22,104 +19,36 @@ class DynamicProgressButton extends StatefulWidget {
 }
 
 class _DynamicProgressButtonState extends State<DynamicProgressButton> {
-  bool _isDialogShown = false;
-  String _lastDialogShownForState = "";
   UserState? userState;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ButtonStateProvider>(context, listen: false)
-          .registerShowDialogFunc(showCustomDialog);
-    });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<UserState>(
-      stream: userStateStream(widget.userId),
-      builder: (context, snapshot) {
-        // Deferred showDialog to postFrameCallback to avoid setState errors during build
-        if (snapshot.hasData) { 
-          userState = snapshot.data!;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _showDialogIfNeeded(snapshot.data!);
-          });
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else if (!snapshot.hasData) {
-          return Text('No user state available');
-        } else {
-          return _displayUserState(snapshot.data!);
-        }
-      },
-    );
-  }
-
-  Future<void> _showDialogIfNeeded(UserState userState) async {
-    // Define a string that represents the current significant state
-     // Update the camera provider
-    String currentState =
-        "${userState.questionnaireCompleted}_${userState.faceVerified}_${userState.initialPhotoTaken}_${userState.followUpPhotoTaken}}";
-
-    // Check if the current state is different from the last one we showed the dialog for
-    if (_shouldShowDialog(userState) && _lastDialogShownForState != currentState) {
-      _updateProvider(userState);
-     } if (!_isDialogShown){
-      _isDialogShown = true;
-      _lastDialogShownForState = currentState; // Update the last known state
-      
-
-      await showCustomDialog(context);
-
-      if (mounted) {
-        setState(() {
-          //_isDialogShown = false;
+@override
+Widget build(BuildContext context) {
+  return StreamBuilder<UserState>(
+    stream: userStateStream(widget.userId),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      } else if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      } else if (!snapshot.hasData) {
+        return Text('No user state available');
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Provider.of<DialogManager>(context, listen: false).showDialogIfNeeded(snapshot.data!, context);
         });
+        return _displayUserState(snapshot.data!);
       }
-    }
-  }
-
-  Future<void> showCustomDialog(BuildContext context) async {
-    Map<String, String> dialogContent = _dialogContent(userState!);
-    String title = dialogContent['title'] ?? 'Update';
-    String message = dialogContent['message'] ?? 'There\'s an update for you.';
-
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text(title, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-          content: Text(message, style: TextStyle(color: Colors.black)),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Got it'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
-        );
-      },
-    );
-  }
+    },
+  );
+}
 
   void _faceVerifyPressed() {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => ROCEnrollWebViewer()));
-  }
-
-  // Check if the dialog should be shown based on the user state
-  bool _shouldShowDialog(UserState userState) {
-    return !userState.questionnaireCompleted ||
-        !userState.faceVerified ||
-        (!userState.initialPhotoTaken && !userState.followUpPhotoTaken) ||
-        userState.canTakeFollowUpPhoto() ||
-        _isPhotoLocked(userState);
   }
 
   // Check if the follow-up photo is locked
@@ -127,77 +56,6 @@ class _DynamicProgressButtonState extends State<DynamicProgressButton> {
     return userState.initialPhotoTaken &&
         !userState.canTakeFollowUpPhoto() &&
         !userState.followUpPhotoTaken;
-  }
-
-  // Update the providers based on the user state
-Future<void> _updateProvider(UserState userState) async {
-  // Retrieve the providers only once to avoid multiple look-ups
-  var cameraProvider = Provider.of<CameraStateProvider>(context, listen: false);
-  var buttonProvider = Provider.of<ButtonStateProvider>(context, listen: false);
-
-  // Update the camera active state 
-  if (!userState.questionnaireCompleted || _isPhotoLocked(userState) || userState.hasFollowUpPhotoDeadlinePassed()) {
-    cameraProvider.isCameraActive = false;
-  } else if (userState.initialPhotoTaken || userState.canTakeFollowUpPhoto()) {
-    cameraProvider.isCameraActive = true;
-  }
-
-  // Update the button states based on questionnaire and face verification states
-  buttonProvider.isQuestionnaireActive = !userState.questionnaireCompleted;
-  buttonProvider.isFaceActive = !userState.faceVerified;
-}
-
-// Define the dialog content based on the user state
-  Map<String, String> _dialogContent(UserState userState) {
-    Duration? timeRemaining = userState.getLockedCountdownDuration();
-
-    if (!userState.questionnaireCompleted) {
-      return {
-        'title': 'Haven\'t completed your questionnaire?',
-        'message':
-            'Completing your health questionnaire is essential for TST analysis. Click here to complete it and ensure accurate interpretation. Your health is our priority.'
-      };
-    } else if (!userState.faceVerified) {
-      return {
-        'title': 'Face Verification Required',
-        'message':
-            'Please verify your face to proceed. This is a necessary step to ensure the security of your data.'
-      };
-    } else if (!userState.initialPhotoTaken && !userState.followUpPhotoTaken) {
-      return {
-        'title': 'Capture your test site photo',
-        'message':
-            'Let\'s take an initial photo of your test site. This step is crucial for monitoring the site\'s reaction accurately over time.'
-      };
-    } else if (_isPhotoLocked(userState) &&
-        !userState.hasFollowUpPhotoDeadlinePassed()) {
-      String message =
-          'The next photo can be taken 48 hours from the initial capture. Check back in [time remaining] to take your follow-up photo. Thank you for your patience!';
-      if (timeRemaining != null) {
-        String formattedTimeRemaining =
-            '${timeRemaining.inHours} hours and ${timeRemaining.inMinutes.remainder(60)} minutes';
-        message =
-            message.replaceAll('[time remaining]', formattedTimeRemaining);
-      }
-      return {'title': 'Please Wait for the Next Photo', 'message': message};
-    } else if (userState.canTakeFollowUpPhoto()) {
-      return {
-        'title': 'Final Follow-Up Photo',
-        'message':
-            'This is the time for your final follow-up photo. Your submission will be reviewed by our medical experts to ensure the most accurate assessment. Click here to take and upload your photo.'
-      };
-    } else if (userState.hasFollowUpPhotoDeadlinePassed()) {
-      return {
-        'title': 'Missed Window',
-        'message':
-            'You have missed the window to take your follow-up photo. Please contact your healthcare provider for further instructions.'
-      };
-    } else {
-      return {
-        'title': 'All Tasks Completed',
-        'message': 'Please await your diagnosis. Thank you for your cooperation.'
-      };
-    }
   }
 
   void _completeQuestionnaire() {
@@ -272,6 +130,7 @@ Future<void> _updateProvider(UserState userState) async {
       return buildStateButton(
           context: context,
           text: 'Take Follow-up Photo',
+          fontSize: 20,
           iconPath: "assets/images/camera.svg",
           color: Color(0xFF2E1C56),
           hasProgressBar: true,

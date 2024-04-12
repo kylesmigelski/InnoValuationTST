@@ -17,6 +17,8 @@ import '../providers/camera_state_provider.dart';
 import '../widgets/request_notification_permission.dart';
 import '../providers/button_state_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../providers/dialog_provider.dart';
+import '../utils/user_state.dart';
 
 class MainMenuView extends StatefulWidget {
   @override
@@ -91,7 +93,7 @@ Future<void> _launchUrl() async {
   }
 
   void _helpPressed() {
-    Provider.of<ButtonStateProvider>(context, listen: false).callShowDialog(context);
+    Provider.of<DialogManager>(context, listen: false).showCustomDialog(context);
   }
 
   List<Widget> _buildScreens() {
