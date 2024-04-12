@@ -109,7 +109,7 @@ class _ROCEnrollWebViewerState extends State<ROCEnrollWebViewer> {
       ),
       body: InAppWebView(
         initialUrlRequest: URLRequest(
-          url:  Uri.parse(_baseURL + "/rocenroll/rocenroll/home?flavor=gvsu&otp=$_otp"),
+          url:  Uri.parse(_baseURL + "/rocenroll/rocenroll/home?flavor=gvsu"),
 
         ),
         initialOptions: InAppWebViewGroupOptions(
