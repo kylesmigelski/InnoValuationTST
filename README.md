@@ -1,4 +1,4 @@
-# InnoValuation TST Application
+# InnoValuation TST
 
 ## Overview
 
