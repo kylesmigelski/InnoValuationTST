@@ -4,6 +4,10 @@
 
 InnoValuation TST Application is a cross-platform mobile app designed to improve the follow-up rates of Tuberculosis Skin Testing (TST) by allowing patients to upload photos of their injection site instead of returning to the testing center. Developed using Flutter and Firebase, this application enables healthcare providers to monitor and manage TST results remotely, potentially reducing the spread of Tuberculosis.
 
+## View Figma Prototype
+
+[Prototype](https://www.figma.com/proto/Gpgs7qRKAMhyKk3phiuqKC/InnoValuation-Mockup?page-id=0%3A1&node-id=439-245&node-type=canvas&viewport=711%2C628%2C0.24&t=hMDxjrHeNVkvjgFK-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=4%3A80)
+
 ## Team
 
 - Lucas Myers
